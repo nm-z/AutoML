@@ -148,6 +148,13 @@ class TPOTEngine(BaseEngine):
             linreg = LinearRegression(n_jobs=1)
             linreg.fit(X, y)
             self._tpot = linreg
+        except Exception as e:  # noqa: BLE001 – catch all TPOT errors
+            logger.error("[%s] TPOT failed – fallback LinearRegression: %s", self.__class__.__name__, e, exc_info=True)
+            from sklearn.linear_model import LinearRegression
+
+            linreg = LinearRegression(n_jobs=1)
+            linreg.fit(X, y)
+            self._tpot = linreg
 
         console.print(root)
         logger.info("[%s] search-end", self.__class__.__name__)
