@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 TPOT_COMPONENT_MAP = {
     # Models
     "Ridge": "sklearn.linear_model.Ridge",
+    "RPOP": None,
     "Lasso": "sklearn.linear_model.Lasso",
     "ElasticNet": "sklearn.linear_model.ElasticNet",
     "SVR": "sklearn.svm.SVR",

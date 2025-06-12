@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 # Map our generic model names to AutoGluon's internal model keys
 AUTOGLUON_MODEL_MAP = {
     "Ridge": "LR",
+    "RPOP": None,
     "Lasso": "LR",
     "ElasticNet": "LR",
     "SVR": None,  # AutoGluon doesn't have a direct SVR equivalent in default models
