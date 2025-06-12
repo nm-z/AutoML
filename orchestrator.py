@@ -566,8 +566,8 @@ def _cli() -> None:
         sys.exit(2) # Exit code for data loading error
 
     logger.info("Starting AutoML meta-search...")
-    logger.info("Predictors path: %s", args.data)
-    logger.info("Target path: %s", args.target)
+    logger.info("Predictors file: %s", Path(args.data).name)
+    logger.info("Target file: %s", Path(args.target).name)
     logger.info("Time limit per engine: %d seconds", args.time)
     logger.info("Output directory: %s", run_dir)
     logger.info("Evaluation metric: %s", args.metric)
