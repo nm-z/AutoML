@@ -4,6 +4,18 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
+import importlib.util
+
+
+def _ensure_parquet_engine() -> None:
+    """Ensure that a Parquet engine is available."""
+    if (
+        importlib.util.find_spec("pyarrow") is None
+        and importlib.util.find_spec("fastparquet") is None
+    ):
+        raise ImportError(
+            "Loading Parquet files requires either 'pyarrow' or 'fastparquet'."
+        )
 
 def load_data(
     predictors_path: str | Path,
@@ -12,8 +24,8 @@ def load_data(
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """Load predictor and target data from specified paths.
 
-    Supports CSV and conceptually, Parquet files. For Parquet, it's a placeholder
-    and would require `pyarrow` or `fastparquet`.
+    Supports CSV and Parquet files. Parquet requires either ``pyarrow`` or
+    ``fastparquet`` to be installed.
 
     Parameters
     ----------
@@ -46,19 +58,19 @@ def load_data(
 
     if predictors_path.suffix == ".csv":
         X = pd.read_csv(predictors_path, **kwargs)
-    # elif predictors_path.suffix == ".parquet":
-    #     # Placeholder for Parquet support
-    #     # X = pd.read_parquet(predictors_path, **kwargs)
-    #     raise ValueError("Parquet support is not yet implemented.")
+    elif predictors_path.suffix == ".parquet":
+        _ensure_parquet_engine()
+        X = pd.read_parquet(predictors_path, **kwargs)
     else:
-        raise ValueError(f"Unsupported predictors file format: {predictors_path.suffix}")
+        raise ValueError(
+            f"Unsupported predictors file format: {predictors_path.suffix}"
+        )
 
     if target_path.suffix == ".csv":
         y = pd.read_csv(target_path, **kwargs).squeeze()
-    # elif target_path.suffix == ".parquet":
-    #     # Placeholder for Parquet support
-    #     # y = pd.read_parquet(target_path, **kwargs).squeeze()
-    #     raise ValueError("Parquet support is not yet implemented.")
+    elif target_path.suffix == ".parquet":
+        _ensure_parquet_engine()
+        y = pd.read_parquet(target_path, **kwargs).squeeze()
     else:
         raise ValueError(f"Unsupported target file format: {target_path.suffix}")
 

@@ -76,6 +76,9 @@ deactivate
 
 ## Running the Orchestrator
 
+Datasets may be provided as CSV or Parquet files. Loading Parquet requires the
+optional ``pyarrow`` or ``fastparquet`` package.
+
 ```bash
 # Activate the appropriate environment
 ./activate-tpa.sh
