@@ -18,6 +18,7 @@ _ENGINE_ORDER: List[str] = [
     # "auto_sklearn_wrapper", # Temporarily commented out due to persistent dependency issues with Python 3.11
     # "tpot_wrapper", # Temporarily commented out due to persistent issues with TPOT
     "autogluon_wrapper",
+    "optuna_wrapper",
 ]
 
 
