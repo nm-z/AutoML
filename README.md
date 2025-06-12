@@ -21,7 +21,7 @@ This repository has three main branches:
 
 This project uses separate Python virtual environments to handle AutoML library compatibility:
 
-- **`env-as`** - Auto-sklearn environment (Python 3.11+ recommended)
+- **`env-as`** - Auto-sklearn environment (Python 3.10 recommended)
 - **`env-tpa`** - TPOT + AutoGluon environment (Python 3.11+ recommended)
 
 ### Quick Environment Usage
@@ -41,9 +41,16 @@ deactivate
 
 The setup script supports Python 3.13 but with limitations:
 - **Auto-sklearn**: Not compatible with Python 3.13 (will be skipped)
-- **AutoGluon**: Not compatible with Python 3.13 (will be skipped)  
+- **AutoGluon**: Not compatible with Python 3.13 (will be skipped)
 - **TPOT**: Works with Python 3.13 with compatibility warnings
 - **XGBoost/LightGBM**: Generally compatible with Python 3.13
+
+### Python 3.11 Notes
+
+Auto-sklearn currently requires a legacy `scikit-learn` (<0.25) build which does
+not ship pre-built wheels for Python 3.11. If the package cannot be installed,
+the orchestrator will automatically skip the engine. TPOT 1.0.0 works on
+Python 3.11 without issues.
 
 For best compatibility, install Python 3.11:
 ```bash
@@ -58,19 +65,19 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 
 ```bash
 # Create environments
-python3.11 -m venv env-as
+python3.10 -m venv env-as  # Auto-sklearn requires Python < 3.11
 python3.11 -m venv env-tpa
 
 # Install Auto-Sklearn environment
 source env-as/bin/activate
 pip install --upgrade pip
-pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn==1.3.2 pandas matplotlib seaborn rich joblib
+pip install auto-sklearn==0.15.0 scikit-learn==0.24.2 numpy==1.24.3 pandas matplotlib seaborn rich joblib
 deactivate
 
 # Install TPOT + AutoGluon environment
 source env-tpa/bin/activate
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotlib seaborn rich joblib xgboost lightgbm
+pip install setuptools tpot==1.0.0 autogluon.tabular numpy scikit-learn pandas matplotlib seaborn rich joblib xgboost lightgbm
 deactivate
 ```
 

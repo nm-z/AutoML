@@ -10,13 +10,19 @@ import importlib
 from types import ModuleType
 from typing import Dict, List
 
+_DEPENDENCY_CHECKS = {
+    "auto_sklearn_wrapper": ["autosklearn"],
+    "tpot_wrapper": ["tpot"],
+    "autogluon_wrapper": ["autogluon"],
+}
+
 # ---------------------------------------------------------------------------
 # The *canonical* order we will attempt to use the engines.  Earlier entries
 # get first dibs at the allocated wall-clock budget.
 # ---------------------------------------------------------------------------
 _ENGINE_ORDER: List[str] = [
-    # "auto_sklearn_wrapper", # Temporarily commented out due to persistent dependency issues with Python 3.11
-    # "tpot_wrapper", # Temporarily commented out due to persistent issues with TPOT
+    "auto_sklearn_wrapper",
+    "tpot_wrapper",
     "autogluon_wrapper",
 ]
 
@@ -34,12 +40,25 @@ def _import_wrapper(module_basename: str) -> ModuleType | None:
         return None
 
 
+def _dependencies_available(module_basename: str) -> bool:
+    """Return ``True`` if the wrapper's third-party dependencies can be imported."""
+    mods = _DEPENDENCY_CHECKS.get(module_basename, [])
+    for mod in mods:
+        try:
+            importlib.import_module(mod)
+        except ModuleNotFoundError:
+            return False
+    return True
+
+
 def discover_available() -> Dict[str, ModuleType]:
     """Return a mapping of ``{engine_name: wrapper_module}`` for those wrappers
     that can be successfully imported on *this* machine.
     """
     available: Dict[str, ModuleType] = {}
     for mod in _ENGINE_ORDER:
+        if not _dependencies_available(mod):
+            continue
         wrapper = _import_wrapper(mod)
         if wrapper is not None:
             available[mod] = wrapper
