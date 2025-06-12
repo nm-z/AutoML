@@ -92,6 +92,15 @@ python orchestrator.py --tpot --time 1800 \
 deactivate
 ```
 
+## Running Tests
+
+Install development dependencies and execute the test suite with `pytest`:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## Project Structure
 
 ```
