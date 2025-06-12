@@ -4,7 +4,7 @@
 
 A reproducible, plug‑and‑play **AutoML** harness that can ingest *any* tabular dataset, explore the *exact* model families and preprocessing blocks you approve of, and hand back the highest‑R² pipeline—all without hand‑rolled Optuna loops.
 
-The system wraps three battle‑tested engines—**auto‑sklearn 2**, **TPOT 2**, and **AutoGluon‑Tabular**—behind a thin orchestrator that:
+The system wraps four battle‑tested engines—**auto‑sklearn 2**, **TPOT 2**, **AutoGluon‑Tabular**, and an **Optuna-based engine**—behind a thin orchestrator that:
 1. Constrains each engine to the approved search‑space (Tables 1 & 2).
 2. Runs the engines in parallel, each with its own budget.
 3. Scores their champions on a shared validation split.
@@ -97,7 +97,7 @@ AutoML‑Harness
 2. Populate `config.py` with `MODEL_FAMILIES` and `PREP_STEPS` arrays.
 3. Implement `_get_automl_engine()` (imports auto‑sklearn → TPOT → AutoGluon).
 4. Write `_fit_engine()` adapters and `meta_search()` orchestrator.
-5. Optional: ensemble the three champions for a small R² bump.
+5. Optional: ensemble the four champions for a small R² bump.
 6. Add CLI + CI tests.
 
 ---

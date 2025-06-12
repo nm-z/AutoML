@@ -18,6 +18,7 @@ _ENGINE_ORDER: List[str] = [
     "auto_sklearn_wrapper",
     "tpot_wrapper",
     "autogluon_wrapper",
+    "optuna_wrapper",  # Optuna-based engine
 ]
 
 
