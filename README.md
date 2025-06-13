@@ -8,7 +8,7 @@
 ./setup.sh [--with-as]
 ```
 
-This automatically creates the `env-tpa` Python environment, installs all dependencies (including `pandas`), and sets up the project structure. Use `--with-as` if you also want the optional Auto-Sklearn environment. After running it, activate the environment before using the orchestrator:
+This automatically creates the `env-tpa` Python environment, installs all dependencies (including `pandas`), and sets up the project structure. On Python **3.11 or higher**, `setup.sh` skips Auto-Sklearn and prepares only the TPOT/AutoGluon environment. Use `--with-as` if you also want the optional Auto-Sklearn environment. After running it, activate the environment before using the orchestrator:
 
 ```bash
 ./activate-tpa.sh
