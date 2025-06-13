@@ -95,14 +95,10 @@ deactivate
 # Activate the appropriate environment
 ./activate-tpa.sh
 
-# Run with all engines
-python orchestrator.py --all --time 3600 \
+# Run the orchestrator (all engines are used automatically)
+python orchestrator.py --time 3600 \
   --data DataSets/3/predictors_Hold\ 1\ Full_20250527_151252.csv \
   --target DataSets/3/targets_Hold\ 1\ Full_20250527_151252.csv
-
-# Run with specific engines
-python orchestrator.py --tpot --time 1800 \
-  --data DataSets/1/Predictors_Hold-1_2025-04-14_18-28.csv
 
 deactivate
 ```

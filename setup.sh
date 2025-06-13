@@ -405,7 +405,7 @@ main() {
     echo ""
     echo "Quick Start:"
     echo "  1. Run: ./activate-tpa.sh"
-    echo "  2. Test: python orchestrator.py --all --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
+    echo "  2. Test: python orchestrator.py --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
     echo "  3. Optionally try Auto-Sklearn with ./activate-as.sh"
     echo ""
     echo "For more information, see README.md"
