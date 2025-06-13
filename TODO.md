@@ -19,3 +19,4 @@
 
 The setup script now creates the `automl-harness` pyenv environment by default and installs all required packages. Activation is done via `pyenv activate automl-harness`.
 
+- Investigate auto-sklearn installation failure on Python 3.11 and document workaround (e.g., use Python 3.9 or compile scikit-learn 0.24).
