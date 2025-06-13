@@ -379,10 +379,10 @@ main() {
     # setup_pyenv  # Commented out to use system Python directly
     create_directories
     create_environments
-    install_env_tpa_deps
     if [ "$ENABLE_AS" = true ]; then
         install_env_as_deps
     fi
+    install_env_tpa_deps
     test_environments
     post_setup_check
     create_activation_scripts
