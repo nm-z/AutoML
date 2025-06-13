@@ -29,7 +29,6 @@ import subprocess # Added subprocess
 
 from scripts.data_loader import load_data # Import the new data_loader
 from engines import discover_available
-from engines.auto_sklearn_wrapper import AutoSklearnEngine
 from engines.tpot_wrapper import TPOTEngine
 from engines.autogluon_wrapper import AutoGluonEngine
 
@@ -625,9 +624,7 @@ def _meta_search_concurrent(
 
 def _get_automl_engine(name: str):
     """Dynamically import and return the specified AutoML engine wrapper."""
-    if name == "auto_sklearn_wrapper":
-        return AutoSklearnEngine
-    elif name == "tpot_wrapper":
+    if name == "tpot_wrapper":
         return TPOTEngine
     elif name == "autogluon_wrapper":
         return AutoGluonEngine
@@ -714,17 +711,12 @@ def _cli() -> None:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Run all available AutoML engines",
+        help="Run all available AutoML engines (TPOT + AutoGluon)",
     )
     parser.add_argument(
         "--autogluon",
         action="store_true",
         help="Run only the AutoGluon engine",
-    )
-    parser.add_argument(
-        "--autosklearn",
-        action="store_true",
-        help="Run only the Auto-Sklearn engine",
     )
     parser.add_argument(
         "--tpot",
@@ -739,22 +731,20 @@ def _cli() -> None:
 
     args = parser.parse_args()
 
-    if not (args.all or args.autogluon or args.autosklearn or args.tpot):
-        parser.error("At least one engine must be selected: --all, --autogluon, --autosklearn, or --tpot")
+    if not (args.all or args.autogluon or args.tpot):
+        parser.error("At least one engine must be selected: --all, --autogluon, or --tpot")
 
     selected_engines = []
     if args.all:
-        selected_engines = ["autogluon", "autosklearn", "tpot"]
+        selected_engines = ["autogluon", "tpot"]
     else:
         if args.autogluon:
             selected_engines.append("autogluon")
-        if args.autosklearn:
-            selected_engines.append("autosklearn")
         if args.tpot:
             selected_engines.append("tpot")
 
     if not selected_engines:
-        parser.error("No engines selected. Please use --all or specify at least one engine with --autogluon, --autosklearn, or --tpot.")
+        parser.error("No engines selected. Please use --all or specify at least one engine with --autogluon or --tpot.")
 
     # Define unique run directory for artifacts
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")

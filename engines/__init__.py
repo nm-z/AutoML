@@ -2,7 +2,7 @@
 
 This package exposes utilities to discover and import whichever AutoML
 engine wrappers are actually available in the runtime environment.  The
-wrappers themselves live alongside this module (e.g. ``auto_sklearn_wrapper.py``).
+wrappers themselves live alongside this module (e.g. ``tpot_wrapper.py``).
 """
 from __future__ import annotations
 
@@ -15,7 +15,6 @@ from typing import Dict, List
 # get first dibs at the allocated wall-clock budget.
 # ---------------------------------------------------------------------------
 _ENGINE_ORDER: List[str] = [
-    "auto_sklearn_wrapper",
     "tpot_wrapper",
     "autogluon_wrapper",
 ]
