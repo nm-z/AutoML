@@ -46,6 +46,54 @@ pyenv activate automl-harness
 pyenv deactivate
 ```
 
+### Multi-Python Setup (3.10 + 3.11)
+
+To run **Auto-Sklearn** and **TPOT** alongside **AutoGluon** without Docker,
+create two `pyenv` environments. Python 3.10 is needed for Auto-Sklearn and,
+in many cases, TPOT, while Python 3.11 can run the orchestrator and
+AutoGluon.
+
+```bash
+pyenv install 3.10.14
+pyenv install 3.11.9
+
+pyenv virtualenv 3.10.14 automl-py310
+pyenv virtualenv 3.11.9 automl-py311
+
+pyenv activate automl-py310
+pip install --upgrade pip
+pip install -r requirements.txt
+pyenv deactivate
+
+pyenv activate automl-py311
+pip install --upgrade pip
+# Comment out auto-sklearn and tpot in requirements.txt if needed
+pip install -r requirements.txt
+pyenv deactivate
+```
+
+Run the orchestrator in the **automl-py311** environment and spawn
+Auto-Sklearn and TPOT via `pyenv exec python3.10`:
+
+```python
+# orchestrator.py snippet
+subprocess.run(["pyenv", "exec", "python3.10", "tpot_worker.py", "input.csv", "output.csv"])
+subprocess.run(["pyenv", "exec", "python3.10", "autosklearn_worker.py", "input.csv", "output.csv"])
+```
+
+For convenience, a small shell script can automate the sequence:
+
+```bash
+export PYENV_VERSION=automl-py311
+python orchestrator.py --all
+```
+
+:::task-stub{title="Switch to PYENV_VERSION if pyenv exec fails"}
+Set `PYENV_VERSION=automl-py310` before calling `python tpot_worker.py` or
+`python autosklearn_worker.py`. This ensures the scripts run in the correct
+environment if `pyenv exec` is unavailable.
+:::
+
 ### Python 3.13 Compatibility Notes
 
 The setup script supports Python 3.13 but with limitations:
