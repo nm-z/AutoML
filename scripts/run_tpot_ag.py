@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""TPOT + AutoGluon Runner (Python 3.11 – env-tpa)
+"""TPOT + AutoGluon Runner (Python 3.10 – env-tpa)
 
 This script is meant to be executed from the *env-tpa* pyenv virtual
 environment. It expects that `tpot==1.0.0` and `autogluon.tabular`

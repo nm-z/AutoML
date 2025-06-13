@@ -14,6 +14,7 @@
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Add a `--tree` flag to `orchestrator.py` to optionally print artifact directories in tree form.
 - Create tests verifying tree-formatted output appears when the flag is used.
+- Migrate the pyenv setup to Python 3.10 (or 3.9) and reinstall `auto-sklearn` for compatibility with older `scikit-learn`.
 
 ## Status
 

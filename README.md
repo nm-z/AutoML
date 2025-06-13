@@ -54,19 +54,19 @@ The setup script supports Python 3.13 but with limitations:
 - **TPOT**: Works with Python 3.13 with compatibility warnings
 - **XGBoost/LightGBM**: Generally compatible with Python 3.13
 
-For best compatibility, install Python 3.11 using `pyenv`:
+For best compatibility, install Python 3.10 using `pyenv`:
 ```bash
-pyenv install 3.11.9
+pyenv install 3.10.13
 ```
 
 ### Manual Installation (if setup.sh fails)
 
 ```bash
-# Install Python 3.11 using pyenv if not already present
-pyenv install 3.11.9
+# Install Python 3.10 using pyenv if not already present
+pyenv install 3.10.13
 
 # Create the pyenv virtual environment
-pyenv virtualenv 3.11.9 automl-harness
+pyenv virtualenv 3.10.13 automl-harness
 
 # Activate the environment
 pyenv activate automl-harness
@@ -120,7 +120,7 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 ## System Requirements
 
 - Linux (recommended) or macOS
-- Python 3.11+ (recommended) or Python 3.13 (with limitations)
+- Python 3.10+ (recommended) or Python 3.13 (with limitations)
 - 8GB+ RAM for larger datasets
 
 - Build tools (`build-essential` on Ubuntu, `base-devel` on Arch) 
@@ -149,7 +149,7 @@ This project no longer provides direct Docker support in the `pyenv-only` branch
   install the required packages.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
-  on Python 3.13. Use Python 3.11 for full functionality.
+  on Python 3.13. Use Python 3.10 for full functionality.
 
 ## License
 

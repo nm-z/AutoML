@@ -39,14 +39,17 @@ check_system() {
         log_warning "This script is optimized for Linux. Continuing anyway..."
     fi
     
-    # Check for available Python versions (strictly enforce 3.11)
-    if command -v python3.11 &> /dev/null; then
-        PYTHON_CMD="python3.11"
-        log_success "Found Python 3.11 (required)"
+    # Check for available Python versions (prefer 3.10, fallback to 3.9)
+    if command -v python3.10 &> /dev/null; then
+        PYTHON_CMD="python3.10"
+        log_success "Found Python 3.10 (required)"
+    elif command -v python3.9 &> /dev/null; then
+        PYTHON_CMD="python3.9"
+        log_success "Found Python 3.9 (required)"
     else
-        log_error "Python 3.11 is required but not found. Please install Python 3.11 before running this setup script."
-        log_info "For Ubuntu/Debian: sudo apt install python3.11 python3.11-venv python3.11-dev"
-        log_info "For Arch: sudo pacman -S python311"
+        log_error "Python 3.10 or 3.9 is required but neither was found. Please install Python 3.10 or 3.9 before running this setup script."
+        log_info "For Ubuntu/Debian: sudo apt install python3.10 python3.10-venv python3.10-dev"
+        log_info "For Arch: sudo pacman -S python310"
         exit 1
     fi
     
@@ -65,9 +68,9 @@ install_system_deps() {
     if command -v apt &> /dev/null; then
         log_info "Detected apt package manager"
         # We won't run sudo commands automatically, just inform user
-        if ! dpkg -l | grep -q python3.11-dev; then
-            log_warning "python3.11-dev not found. You may need to run:"
-            log_warning "sudo apt update && sudo apt install -y python3.11-dev build-essential"
+        if ! dpkg -l | grep -q python3.10-dev; then
+            log_warning "python3.10-dev not found. You may need to run:"
+            log_warning "sudo apt update && sudo apt install -y python3.10-dev build-essential"
         fi
     elif command -v pacman &> /dev/null; then
         log_info "Detected pacman package manager"
@@ -127,10 +130,10 @@ create_directories() {
 setup_pyenv_env() {
     log_info "Creating and setting up pyenv environment 'automl-harness'..."
     
-    # Ensure Python 3.11 is available via pyenv
-    if ! pyenv versions | grep -q "3.11"; then
-        log_info "Installing Python 3.11 with pyenv..."
-        pyenv install 3.11.9 || pyenv install 3.11
+    # Ensure Python 3.10 is available via pyenv
+    if ! pyenv versions | grep -q "3.10"; then
+        log_info "Installing Python 3.10 with pyenv..."
+        pyenv install 3.10.13 || pyenv install 3.10
     fi
     
     # Create or recreate the pyenv virtual environment
@@ -139,7 +142,7 @@ setup_pyenv_env() {
         pyenv virtualenv-delete -f automl-harness
     fi
     log_info "Creating pyenv virtual environment 'automl-harness'..."
-    pyenv virtualenv 3.11.9 automl-harness || pyenv virtualenv 3.11 automl-harness
+    pyenv virtualenv 3.10.13 automl-harness || pyenv virtualenv 3.10 automl-harness
     log_success "Created pyenv virtual environment 'automl-harness'"
     
     # Activate the environment and install dependencies

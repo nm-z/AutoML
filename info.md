@@ -24,12 +24,12 @@ Each engine is a different approach to automated machine learning:
 - **🧬 TPOT** (`engines/tpot_wrapper.py`) 
   - Uses genetic programming (evolutionary algorithms)
   - Literally evolves ML pipelines like biological evolution
-  - Works with Python 3.11+
+  - Works with Python 3.10+
 
 - **⚡ AutoGluon** (`engines/autogluon_wrapper.py`)
   - Uses ensemble methods + neural architecture search
   - Super fast, often wins competitions
-  - Works with Python 3.11+
+  - Works with Python 3.10+
 
 ### **3. 🧩 Component Library (`components/`)**
 This is where the **building blocks** live that the AutoML engines can choose from:
@@ -44,7 +44,7 @@ This is where the **building blocks** live that the AutoML engines can choose fr
 The **entire reason for the complexity** is Python version incompatibility:
 
 - **`env-as/`** - Auto-Sklearn environment (Python ≤3.10)
-- **`env-tpa/`** - TPOT + AutoGluon environment (Python 3.11+)
+- **`env-tpa/`** - TPOT + AutoGluon environment (Python 3.10+)
 - **`setup.sh`** - Creates both environments with correct dependencies
 - **`activate-*.sh`** - Switches between environments
 
@@ -65,7 +65,7 @@ The **entire reason for the complexity** is Python version incompatibility:
 
 ### **The Python Version Problem:**
 - **Auto-Sklearn:** Only works on Python ≤3.10
-- **TPOT + AutoGluon:** Work best on Python 3.11+
+- **TPOT + AutoGluon:** Work best on Python 3.10+
 - **Solution:** Two separate environments managed by `setup.sh`
 
 ### **The Meta-AutoML Concept:**
