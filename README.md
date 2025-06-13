@@ -90,6 +90,19 @@ pip install setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotl
 deactivate
 ```
 
+### Pyenv Virtual Environments
+
+The setup script also configures [pyenv](https://github.com/pyenv/pyenv) and
+the `pyenv-virtualenv` plugin. Two virtual environments are created:
+
+```bash
+pyenv activate automl-py311  # Python 3.11 environment
+pyenv activate automl-py310  # Python 3.10 environment
+```
+
+Use these environments if you prefer managing Python with pyenv. The script
+installs the required Python versions automatically when missing.
+
 ## Running the Orchestrator
 
 ```bash

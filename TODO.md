@@ -5,6 +5,7 @@
 - Git LFS setup completed, including tracking of `.pkl`, `.json`, `DataSets/`, and `05_outputs/` directories. Git history has been cleaned to properly track large files.
 - `orchestrator.py` `AttributeError` for duration calculation fixed.
 - Smoke test for `orchestrator.py` passed successfully. All engines (AutoGluon, Auto-Sklearn, TPOT) executed, data loaded, split, and artifacts saved.
+- Pyenv-virtualenv plugin installed and `automl-py310`/`automl-py311` environments created.
 
 ## Remaining Action Items
 
@@ -17,4 +18,5 @@
 ## Status
 
 The setup script now creates the `env-tpa` environment by default and installs all required packages using prebuilt wheels. An optional `env-as` can be created for Auto-Sklearn (Python ≤3.10). Activation scripts use the standard `venv` mechanism so `python orchestrator.py --help` works after running `./setup.sh` and activating the environment.
+Pyenv is also configured with `automl-py310` and `automl-py311` virtualenvs for advanced users.
 

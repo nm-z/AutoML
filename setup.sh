@@ -78,10 +78,10 @@ install_system_deps() {
     fi
 }
 
-# Setup pyenv if needed
+# Setup pyenv and pyenv-virtualenv if needed
 setup_pyenv() {
     log_info "Checking pyenv installation..."
-    
+
     if ! command -v pyenv &> /dev/null; then
         log_info "Installing pyenv..."
         curl https://pyenv.run | bash
@@ -90,8 +90,11 @@ setup_pyenv() {
         export PYENV_ROOT="$HOME/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
         eval "$(pyenv init -)"
+        # Install pyenv-virtualenv plugin
+        git clone https://github.com/pyenv/pyenv-virtualenv.git "$PYENV_ROOT/plugins/pyenv-virtualenv"
+
         eval "$(pyenv virtualenv-init -)"
-        
+
         log_warning "Please add the following to your ~/.bashrc or ~/.zshrc:"
         echo 'export PYENV_ROOT="$HOME/.pyenv"'
         echo 'export PATH="$PYENV_ROOT/bin:$PATH"'
@@ -100,6 +103,23 @@ setup_pyenv() {
     else
         log_success "pyenv is already installed"
     fi
+}
+
+# Create pyenv-managed virtual environments
+create_pyenv_virtualenvs() {
+    log_info "Creating pyenv virtual environments..."
+
+    pyenv versions --bare | grep -q '^3.10' || pyenv install -s 3.10.17
+    pyenv versions --bare | grep -q '^3.11' || pyenv install -s 3.11.12
+
+    if ! pyenv virtualenvs --bare | grep -q '^automl-py310$'; then
+        pyenv virtualenv 3.10.17 automl-py310
+    fi
+    if ! pyenv virtualenvs --bare | grep -q '^automl-py311$'; then
+        pyenv virtualenv 3.11.12 automl-py311
+    fi
+
+    log_success "pyenv virtual environments created"
 }
 
 # Create virtual environments
@@ -376,7 +396,8 @@ main() {
     
     check_system
     install_system_deps
-    # setup_pyenv  # Commented out to use system Python directly
+    setup_pyenv
+    create_pyenv_virtualenvs
     create_directories
     create_environments
     install_env_tpa_deps
