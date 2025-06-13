@@ -17,7 +17,11 @@ pyenv activate automl-harness
 If you prefer to manage the environment yourself, install the required packages first after activating your `pyenv` environment:
 
 ```bash
-pip install -r requirements.txt
+# For Python 3.10
+pip install -r requirements-py310.txt
+
+# For Python 3.11
+pip install -r requirements-py311.txt
 ```
 This step ensures modules like `pandas` are available before running `orchestrator.py`.
 
@@ -67,13 +71,13 @@ pyenv install 3.11.9
 
 # Create the pyenv virtual environment
 pyenv virtualenv 3.11.9 automl-harness
-
 # Activate the environment
 pyenv activate automl-harness
 
 # Install dependencies
 pip install --upgrade pip
-pip install --only-binary=:all: -r requirements.txt
+pip install --only-binary=:all: -r requirements-py311.txt
+# For Python 3.10, use requirements-py310.txt
 
 # Deactivate the environment
 pyenv deactivate
@@ -107,6 +111,8 @@ AutoML-Harness/
 ├── components/                  # Preprocessors and models
 ├── DataSets/                    # Input datasets
 ├── 05_outputs/                  # Generated artifacts and results
+├── requirements-py310.txt      # Python 3.10 dependencies
+├── requirements-py311.txt      # Python 3.11 dependencies
 └── requirements.txt             # Base dependencies
 ```
 
