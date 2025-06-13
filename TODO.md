@@ -15,6 +15,7 @@
 - Add a `--tree` flag to `orchestrator.py` to optionally print artifact directories in tree form.
 - Create tests verifying tree-formatted output appears when the flag is used.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
+- Add a missing `run_all.sh` script to launch the orchestrator with all three engines for a quick smoke test.
 
 ## Status
 
