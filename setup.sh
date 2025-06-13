@@ -139,7 +139,14 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     # Install all Python dependencies from requirements.txt using wheels only
-    pip install --only-binary=:all: -r requirements.txt
+    if [ "$PYTHON_MINOR" -ge 11 ]; then
+        log_warning "Auto-Sklearn is not available for Python $PYTHON_MINOR; skipping"
+        grep -v "auto-sklearn" requirements.txt > /tmp/req.txt
+        pip install --only-binary=:all: -r /tmp/req.txt
+        rm /tmp/req.txt
+    else
+        pip install --only-binary=:all: -r requirements.txt
+    fi
 
     deactivate
     log_success "env-tpa dependencies installed successfully"
@@ -379,10 +386,10 @@ main() {
     # setup_pyenv  # Commented out to use system Python directly
     create_directories
     create_environments
+    # Install optional Auto-Sklearn dependencies first so env-tpa can
+    # install the shared stack without attempting to build scikit-learn
+    install_env_as_deps
     install_env_tpa_deps
-    if [ "$ENABLE_AS" = true ]; then
-        install_env_as_deps
-    fi
     test_environments
     post_setup_check
     create_activation_scripts
