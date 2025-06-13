@@ -98,17 +98,40 @@ setup_pyenv() {
 # Create virtual environments
 create_environments() {
     log_info "Creating Python virtual environments..."
-    
+
     # Use the Python command determined in check_system
-    
-    # Create env-tpa (TPOT + AutoGluon environment)  
+
+    # Create env-as (Auto-Sklearn environment)
+    if [ -d "env-as" ]; then
+        log_info "Removing existing env-as environment..."
+        rm -rf env-as
+    fi
+    log_info "Creating env-as (Auto-Sklearn environment)..."
+    $PYTHON_CMD -m venv env-as
+    log_success "Created env-as environment"
+
+    # Create env-tpa (TPOT + AutoGluon environment)
     if [ -d "env-tpa" ]; then
         log_info "Removing existing env-tpa environment..."
         rm -rf env-tpa
     fi
     log_info "Creating env-tpa (TPOT + AutoGluon environment)..."
     $PYTHON_CMD -m venv env-tpa
-    log_success "Created env-tpa environment"
+log_success "Created env-tpa environment"
+}
+
+# Install dependencies in env-as
+install_env_as_deps() {
+    log_info "Installing dependencies in env-as..."
+
+    source env-as/bin/activate
+    pip install --upgrade pip
+
+    log_info "Installing auto-sklearn and dependencies..."
+    pip install --prefer-binary auto-sklearn scikit-learn pandas
+
+    deactivate
+    log_success "env-as dependencies installed successfully"
 }
 
 # Install dependencies in env-tpa
@@ -121,7 +144,7 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     # Install all Python dependencies from requirements.txt
-    pip install -r requirements.txt
+    pip install --prefer-binary -r requirements.txt
 
     deactivate
     log_success "env-tpa dependencies installed successfully"
@@ -270,15 +293,15 @@ create_activation_scripts() {
     log_info "Creating environment activation scripts..."
     
     # Create activate-as.sh
-    # cat > activate-as.sh << 'EOF'
-    # #!/bin/bash
-    # # Activate Auto-Sklearn environment
-    # echo "Activating Auto-Sklearn environment (env-as)..."
-    # source env-as/bin/activate
-    # echo "✓ Auto-Sklearn environment activated"
-    # echo "Use 'deactivate' to exit the environment"
-    # EOF
-    # chmod +x activate-as.sh
+    cat > activate-as.sh << 'EOF'
+#!/bin/bash
+# Activate Auto-Sklearn environment
+echo "Activating Auto-Sklearn environment (env-as)..."
+source env-as/bin/activate
+echo "✓ Auto-Sklearn environment activated"
+echo "Use 'deactivate' to exit the environment"
+EOF
+    chmod +x activate-as.sh
     
     # Create activate-tpa.sh  
     cat > activate-tpa.sh << 'EOF'
@@ -306,6 +329,7 @@ main() {
     # setup_pyenv  # Commented out to use system Python directly
     create_directories
     create_environments
+    install_env_as_deps
     install_env_tpa_deps
     test_environments
     post_setup_check
@@ -317,6 +341,7 @@ main() {
     echo "=========================================="
     echo ""
     echo "Environment Usage:"
+    echo "  • Auto-Sklearn:      ./activate-as.sh"
     echo "  • TPOT + AutoGluon: ./activate-tpa.sh"
     echo ""
     echo "Quick Start:"

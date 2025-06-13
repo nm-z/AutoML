@@ -69,13 +69,13 @@ python3.11 -m venv env-tpa
 # Install Auto-Sklearn environment
 source env-as/bin/activate
 pip install --upgrade pip
-pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn==1.3.2 pandas matplotlib seaborn rich joblib
+pip install --prefer-binary auto-sklearn scikit-learn pandas
 deactivate
 
 # Install TPOT + AutoGluon environment
 source env-tpa/bin/activate
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotlib seaborn rich joblib xgboost lightgbm
+pip install --prefer-binary setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotlib seaborn rich joblib xgboost lightgbm
 deactivate
 ```
 
@@ -143,7 +143,6 @@ export LOGSTASH_PORT=5959       # optional, defaults to 5959
 ```
 
 Now run the orchestrator as usual and view logs in Kibana at <http://localhost:5601>.
-=======
 - Build tools (`build-essential` on Ubuntu, `base-devel` on Arch)
 
 ## Running in Docker with Persistent Logs
@@ -164,7 +163,6 @@ docker compose run automl \
 
 All logs are stored under `05_outputs/logs/` on the host machine,
 ensuring they persist between runs.
-=======
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
