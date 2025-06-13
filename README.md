@@ -5,16 +5,16 @@
 **One-command setup** - Run this to get everything working instantly:
 
 ```bash
-./setup.sh [--with-as]
+./setup.sh
 ```
 
-This automatically creates the `env-tpa` Python environment, installs all dependencies (including `pandas`), and sets up the project structure. Use `--with-as` if you also want the optional Auto-Sklearn environment. After running it, activate the environment before using the orchestrator:
+This automatically sets up a `pyenv` environment named `automl-harness` and installs all dependencies (including `pandas`). After running it, activate the environment before using the orchestrator:
 
 ```bash
-./activate-tpa.sh
+pyenv activate automl-harness
 ```
 
-If you prefer to manage the environment yourself, install the required packages first:
+If you prefer to manage the environment yourself, install the required packages first after activating your `pyenv` environment:
 
 ```bash
 pip install -r requirements.txt
@@ -34,22 +34,16 @@ This repository has three main branches:
 
 ## Python Environment Management
 
-This project uses separate Python virtual environments to handle AutoML library compatibility:
-
-- **`env-as`** - Auto-sklearn environment (optional, Python ≤3.10 recommended)
-- **`env-tpa`** - TPOT + AutoGluon environment (Python 3.11+ recommended)
+This project uses `pyenv` to manage Python versions and virtual environments.
 
 ### Quick Environment Usage
 
 ```bash
-# (Optional) Activate Auto-Sklearn environment
-./activate-as.sh
+# Activate the AutoML Harness environment
+pyenv activate automl-harness
 
-# Activate TPOT + AutoGluon environment (default)
-./activate-tpa.sh
-
-# Deactivate any environment
-deactivate
+# Deactivate the environment
+pyenv deactivate
 ```
 
 ### Python 3.13 Compatibility Notes
@@ -60,41 +54,36 @@ The setup script supports Python 3.13 but with limitations:
 - **TPOT**: Works with Python 3.13 with compatibility warnings
 - **XGBoost/LightGBM**: Generally compatible with Python 3.13
 
-For best compatibility, install Python 3.11:
+For best compatibility, install Python 3.11 using `pyenv`:
 ```bash
-# Arch Linux
-sudo pacman -S python311
-
-# Ubuntu/Debian  
-sudo apt install python3.11 python3.11-venv python3.11-dev
+pyenv install 3.11.9
 ```
 
 ### Manual Installation (if setup.sh fails)
 
 ```bash
-# Create environments
-python3.11 -m venv env-tpa
-# Optional Auto-Sklearn environment
-python3.11 -m venv env-as
+# Install Python 3.11 using pyenv if not already present
+pyenv install 3.11.9
 
-# Install Auto-Sklearn environment (Python <=3.10 only)
-source env-as/bin/activate
-pip install --upgrade pip
-pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn==1.4.2 pandas matplotlib seaborn rich joblib
-deactivate
+# Create the pyenv virtual environment
+pyenv virtualenv 3.11.9 automl-harness
 
-# Install TPOT + AutoGluon environment
-source env-tpa/bin/activate
+# Activate the environment
+pyenv activate automl-harness
+
+# Install dependencies
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotlib seaborn rich joblib xgboost lightgbm
-deactivate
+pip install --only-binary=:all: -r requirements.txt
+
+# Deactivate the environment
+pyenv deactivate
 ```
 
 ## Running the Orchestrator
 
 ```bash
-# Activate the appropriate environment
-./activate-tpa.sh
+# Activate the environment
+pyenv activate automl-harness
 
 # Run the orchestrator (AutoGluon, Auto-Sklearn, and TPOT all run)
 python orchestrator.py --all --time 3600 \
@@ -103,7 +92,7 @@ python orchestrator.py --all --time 3600 \
 
 # The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
 # together. The `--all` flag is optional but included here for clarity.
-deactivate
+pyenv deactivate
 ```
 
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
@@ -114,8 +103,6 @@ All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneou
 AutoML-Harness/
 ├── orchestrator.py              # Main entry point
 ├── setup.sh                     # One-command setup script
-├── activate-as.sh               # Auto-sklearn environment activation
-├── activate-tpa.sh              # TPOT + AutoGluon environment activation
 ├── engines/                     # AutoML engine wrappers
 ├── components/                  # Preprocessors and models
 ├── DataSets/                    # Input datasets
@@ -139,55 +126,26 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 - Build tools (`build-essential` on Ubuntu, `base-devel` on Arch) 
 ## Log Aggregation
 
-This project ships a simple **ELK stack** configuration for collecting and searching logs.
-Start the stack with:
-
-```bash
-docker compose -f docker-compose.logging.yml up -d
-```
-
-Set the `LOGSTASH_HOST` environment variable so `orchestrator.py` forwards logs to Logstash:
-
-```bash
-export LOGSTASH_HOST=localhost  # or the host running Logstash
-export LOGSTASH_PORT=5959       # optional, defaults to 5959
-```
-
-Now run the orchestrator as usual and view logs in Kibana at <http://localhost:5601>.
+This project previously supported an ELK stack configuration for log aggregation.
+However, this is no longer directly supported in the `pyenv-only` setup. For log aggregation, consider setting up a separate logging solution that integrates with Python's logging module.
 
 ## Running in Docker with Persistent Logs
 
-This repository includes a minimal **Dockerfile** and a
-`docker-compose.yml` for reproducible runs. The compose configuration
-mounts the host `05_outputs/` directory into the container so that
-all logs and artifacts remain available after the container exits.
-
-```bash
-# Build the Docker image
-docker compose build
-
-# Execute the orchestrator (logs are written to ./05_outputs on the host)
-docker compose run automl \
-  python orchestrator.py --help
-```
-
-All logs are stored under `05_outputs/logs/` on the host machine,
-ensuring they persist between runs.
+This project no longer provides direct Docker support in the `pyenv-only` branch. For Dockerized deployments, please refer to other branches or configurations that explicitly include Dockerfiles and docker-compose configurations.
 
 ## Troubleshooting
 
 - **Environment not activated** – If you encounter `ModuleNotFoundError` or similar issues,
-  activate the default environment:
+  activate the pyenv environment:
 
   ```bash
-  ./activate-tpa.sh
+  pyenv activate automl-harness
   ```
 
-  Optionally switch to the Auto-Sklearn environment with `./activate-as.sh`.
-  Deactivate the current environment at any time using `deactivate`.
+  Deactivate the current environment at any time using `pyenv deactivate`.
 
 - **Setup problems** – If `./setup.sh` fails, follow the instructions in the
-  *Manual Installation* section to create `env-as` and `env-tpa` manually and
+  *Manual Installation* section to set up the `pyenv` environment manually and
   install the required packages.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped

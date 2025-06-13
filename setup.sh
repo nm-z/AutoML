@@ -99,75 +99,12 @@ setup_pyenv() {
         echo 'eval "$(pyenv virtualenv-init -)"'
     else
         log_success "pyenv is already installed"
+        # Ensure pyenv is initialized for the current shell session
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init -)"
+        eval "$(pyenv virtualenv-init -)"
     fi
-}
-
-# Create virtual environments
-create_environments() {
-    log_info "Creating Python virtual environments..."
-
-    # env-tpa is always required
-    if [ -d "env-tpa" ]; then
-        log_info "Removing existing env-tpa environment..."
-        rm -rf env-tpa
-    fi
-    log_info "Creating env-tpa (TPOT + AutoGluon environment)..."
-    $PYTHON_CMD -m venv env-tpa
-    log_success "Created env-tpa environment"
-
-    # Create env-as only when requested
-    if [ "$ENABLE_AS" = true ]; then
-        if [ -d "env-as" ]; then
-            log_info "Removing existing env-as environment..."
-            rm -rf env-as
-        fi
-        log_info "Creating env-as (Auto-Sklearn environment)..."
-        $PYTHON_CMD -m venv env-as
-        log_success "Created env-as environment"
-    else
-        log_warning "Skipping env-as creation (requires Python <=3.10 or --with-as)"
-    fi
-}
-
-# Install dependencies in env-tpa
-install_env_tpa_deps() {
-    log_info "Installing dependencies in env-tpa..."
-
-    source env-tpa/bin/activate
-
-    # Upgrade pip first
-    pip install --upgrade pip
-
-    # Install all Python dependencies from requirements.txt using wheels only
-    pip install --only-binary=:all: -r requirements.txt
-
-    deactivate
-    log_success "env-tpa dependencies installed successfully"
-}
-
-# Install dependencies in env-as
-install_env_as_deps() {
-    if [ ! -d "env-as" ]; then
-        log_warning "env-as environment not found. Skipping Auto-Sklearn dependencies"
-        return
-    fi
-
-    log_info "Installing dependencies in env-as..."
-
-    source env-as/bin/activate
-
-    # Upgrade pip first
-    pip install --upgrade pip
-
-    if [ "$PYTHON_MINOR" -ge 11 ]; then
-        log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
-    else
-        pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
-    fi
-
-    deactivate
-    log_success "env-as dependencies installed successfully"
 }
 
 # Create necessary directories
@@ -186,87 +123,61 @@ create_directories() {
     log_success "Directory structure created"
 }
 
-# Test environments
-test_environments() {
-    log_info "Testing environment installations..."
+# Setup pyenv environment and install dependencies
+setup_pyenv_env() {
+    log_info "Creating and setting up pyenv environment 'automl-harness'..."
     
-    # Test env-as only if it exists
-    if [ -d "env-as" ]; then
-        log_info "Testing env-as environment..."
-        source env-as/bin/activate
-
-        if [[ "$PYTHON_CMD" == "python3.13" ]]; then
-            python -c "
-import sklearn
-import numpy as np
-import pandas as pd
-print('✓ Base scientific environment working correctly (Auto-sklearn skipped for Python 3.13)')
-print(f'  - Scikit-learn version: {sklearn.__version__}')
-print(f'  - NumPy version: {np.__version__}')
-print(f'  - Pandas version: {pd.__version__}')
-"
-        else
-            python -c "
-import auto_sklearn.regression
-import sklearn
-import numpy as np
-import pandas as pd
-print('✓ Auto-Sklearn environment working correctly')
-print(f'  - Auto-Sklearn version: {auto_sklearn.__version__}')
-print(f'  - Scikit-learn version: {sklearn.__version__}')
-print(f'  - NumPy version: {np.__version__}')
-print(f'  - Pandas version: {pd.__version__}')
-"
-        fi
-        deactivate
-    else
-        log_warning "env-as environment not found. Skipping Auto-Sklearn test."
+    # Ensure Python 3.11 is available via pyenv
+    if ! pyenv versions | grep -q "3.11"; then
+        log_info "Installing Python 3.11 with pyenv..."
+        pyenv install 3.11.9 || pyenv install 3.11
     fi
     
-    # Test env-tpa
-    log_info "Testing env-tpa environment..."
-    source env-tpa/bin/activate
+    # Create or recreate the pyenv virtual environment
+    if pyenv virtualenvs | grep -q "automl-harness"; then
+        log_info "Removing existing pyenv environment 'automl-harness'..."
+        pyenv virtualenv-delete -f automl-harness
+    fi
+    log_info "Creating pyenv virtual environment 'automl-harness'..."
+    pyenv virtualenv 3.11.9 automl-harness || pyenv virtualenv 3.11 automl-harness
+    log_success "Created pyenv virtual environment 'automl-harness'"
     
-    if [[ "$PYTHON_CMD" == "python3.13" ]]; then
-        python -c "
-import tpot
-import sklearn
-import numpy as np
-import pandas as pd
-print('✓ TPOT environment working correctly (AutoGluon skipped for Python 3.13)')
-print(f'  - TPOT version: {tpot.__version__}')
-print(f'  - Scikit-learn version: {sklearn.__version__}')
-print(f'  - NumPy version: {np.__version__}')
-print(f'  - Pandas version: {pd.__version__}')
-try:
-    import xgboost as xgb
-    print(f'  - XGBoost version: {xgb.__version__}')
-except ImportError:
-    print('  - XGBoost: Not available')
-try:
-    import lightgbm as lgb
-    print(f'  - LightGBM version: {lgb.__version__}')
-except ImportError:
-    print('  - LightGBM: Not available')
-"
-    else
-        python -c "
+    # Activate the environment and install dependencies
+    pyenv activate automl-harness
+    
+    log_info "Upgrading pip..."
+    pip install --upgrade pip
+    
+    log_info "Installing dependencies from requirements.txt..."
+    pip install --only-binary=:all: -r requirements.txt
+    
+    log_info "Deactivating pyenv environment..."
+    pyenv deactivate
+    log_success "pyenv environment setup completed and dependencies installed"
+}
+
+# Test environment
+test_environment() {
+    log_info "Testing pyenv environment installation..."
+    
+    pyenv activate automl-harness
+    
+    python -c "
 import tpot
 import autogluon.tabular as ag
 import sklearn
 import numpy as np
 import pandas as pd
-print('✓ TPOT + AutoGluon environment working correctly')
+print('✓ AutoML Harness environment working correctly')
 print(f'  - TPOT version: {tpot.__version__}')
 print(f'  - AutoGluon version: {ag.__version__}')
 print(f'  - Scikit-learn version: {sklearn.__version__}')
 print(f'  - NumPy version: {np.__version__}')
 print(f'  - Pandas version: {pd.__version__}')
 "
-    fi
-    deactivate
+    pyenv deactivate
     
-    log_success "All environments tested successfully"
+    log_success "Pyenv environment tested successfully"
 }
 
 # Post-setup check for all installed libraries
@@ -275,9 +186,8 @@ post_setup_check() {
 
     ALL_LIBS_OK=true
 
-    # Check env-tpa libraries
-    source env-tpa/bin/activate
-    REQUIRED_TPA_LIBS=(
+    pyenv activate automl-harness
+    REQUIRED_LIBS=(
         "numpy"
         "pandas"
         "scikit-learn"
@@ -288,7 +198,7 @@ post_setup_check() {
         "xgboost"
         "lightgbm"
     )
-    for lib in "${REQUIRED_TPA_LIBS[@]}"; do
+    for lib in "${REQUIRED_LIBS[@]}"; do
         log_info "Checking $lib..."
         if ! python -c "import $lib" &> /dev/null; then
             log_error "✗ $lib is NOT installed or cannot be imported."
@@ -297,32 +207,7 @@ post_setup_check() {
             log_success "✓ $lib is installed."
         fi
     done
-    deactivate
-
-    # Check env-as libraries if env-as exists
-    if [ -d "env-as" ]; then
-        source env-as/bin/activate
-        REQUIRED_AS_LIBS=(
-            "numpy"
-            "pandas"
-            "scikit-learn"
-            "joblib"
-            "rich"
-            "auto_sklearn.regression"
-        )
-        for lib in "${REQUIRED_AS_LIBS[@]}"; do
-            log_info "Checking $lib..."
-            if ! python -c "import $lib" &> /dev/null; then
-                log_error "✗ $lib is NOT installed or cannot be imported."
-                ALL_LIBS_OK=false
-            else
-                log_success "✓ $lib is installed."
-            fi
-        done
-        deactivate
-    else
-        log_warning "env-as environment not found. Skipping Auto-Sklearn library checks."
-    fi
+    pyenv deactivate
 
     if ! $ALL_LIBS_OK; then
         log_error "Post-setup check FAILED. Some required libraries are missing. Please review the errors above."
@@ -330,35 +215,6 @@ post_setup_check() {
     else
         log_success "All required libraries verified successfully!"
     fi
-}
-
-# Create environment activation scripts
-create_activation_scripts() {
-    log_info "Creating environment activation scripts..."
-
-    # Create activate-as.sh
-    cat > activate-as.sh << 'EOF'
-#!/bin/bash
-# Activate Auto-Sklearn environment
-echo "Activating Auto-Sklearn environment (env-as)..."
-source env-as/bin/activate
-echo "✓ Auto-Sklearn environment activated"
-echo "Use 'deactivate' to exit the environment"
-EOF
-    chmod +x activate-as.sh
-
-    # Create activate-tpa.sh
-    cat > activate-tpa.sh << 'EOF'
-#!/bin/bash
-# Activate TPOT + AutoGluon environment
-echo "Activating TPOT + AutoGluon environment (env-tpa)..."
-source env-tpa/bin/activate
-echo "✓ TPOT + AutoGluon environment activated"
-echo "Use 'deactivate' to exit the environment"
-EOF
-    chmod +x activate-tpa.sh
-
-    log_success "Activation scripts created"
 }
 
 # Main setup function
@@ -370,22 +226,17 @@ main() {
 
     for arg in "$@"; do
         if [ "$arg" = "--with-as" ]; then
-            ENABLE_AS=true
+            ENABLE_AS=true # This will be ignored in pyenv-only setup
         fi
     done
     
     check_system
     install_system_deps
-    # setup_pyenv  # Commented out to use system Python directly
+    setup_pyenv
     create_directories
-    create_environments
-    install_env_tpa_deps
-    if [ "$ENABLE_AS" = true ]; then
-        install_env_as_deps
-    fi
-    test_environments
+    setup_pyenv_env
+    test_environment
     post_setup_check
-    create_activation_scripts
     
     echo ""
     echo "=========================================="
@@ -393,13 +244,12 @@ main() {
     echo "=========================================="
     echo ""
     echo "Environment Usage:"
-    echo "  • TPOT + AutoGluon: ./activate-tpa.sh"
-    echo "  • Auto-Sklearn:     ./activate-as.sh (optional)"
+    echo "  • Activate: pyenv activate automl-harness"
+    echo "  • Deactivate: pyenv deactivate"
     echo ""
     echo "Quick Start:"
-    echo "  1. Run: ./activate-tpa.sh"
-    echo "  2. Test: python orchestrator.py --all --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
-    echo "  3. Optionally try Auto-Sklearn with ./activate-as.sh"
+    echo "  1. Activate: pyenv activate automl-harness"
+    echo "  2. Run: python orchestrator.py --all --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
     echo ""
     echo "For more information, see README.md"
     echo ""
