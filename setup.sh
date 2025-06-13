@@ -130,26 +130,6 @@ create_environments() {
 }
 
 # Install dependencies in env-tpa
-install_env_as_deps() {
-    log_info "Installing dependencies in env-as..."
-
-    source env-as/bin/activate
-
-    # Upgrade pip first
-    pip install --upgrade pip
-
-    # Auto-Sklearn is not available for Python 3.11+, so install only the base
-    # scientific stack when using this version
-    if [[ "$PYTHON_CMD" == *"3.11"* ]]; then
-        log_warning "Auto-Sklearn 0.15.0 is incompatible with Python 3.11; skipping installation"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
-    else
-        pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
-    fi
-
-    deactivate
-    log_success "env-as dependencies installed successfully"
-}
 
 install_env_tpa_deps() {
     log_info "Installing dependencies in env-tpa..."
@@ -159,8 +139,8 @@ install_env_tpa_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
-    # Install all Python dependencies from requirements.txt using wheels only
-    pip install --only-binary=:all: -r requirements.txt
+    # Install all Python dependencies for TPOT/AutoGluon
+    pip install --prefer-binary -r requirements.txt
 
     deactivate
     log_success "env-tpa dependencies installed successfully"
@@ -175,10 +155,8 @@ install_env_as_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
-    # Install auto-sklearn and its dependencies
-    # Note: auto-sklearn is not in requirements.txt because it can conflict with autogluon/tpot
-    # We install a specific version known to be compatible with Python 3.11
-    pip install auto-sklearn==0.15.0
+    # Install Auto-Sklearn2 and core dependencies
+    pip install --prefer-binary auto-sklearn2 scikit-learn==1.4.2 pandas==2.2.1
 
     deactivate
     log_success "env-as dependencies installed successfully"
@@ -389,7 +367,6 @@ main() {
     create_environments
     install_env_as_deps
     install_env_tpa_deps
-    install_env_as_deps
     test_environments
     post_setup_check
     create_activation_scripts

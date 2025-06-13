@@ -2,9 +2,8 @@
 """Auto-Sklearn Runner (Python 3.9 – env-as)
 
 This script is meant to be executed from the *env-as* pyenv virtual
-environment.  It expects that `auto-sklearn==0.15.0` along with its
-supported dependency stack (NumPy, SciPy, scikit-learn 0.24.x, …) is
-available.
+environment.  It expects that `auto-sklearn2` along with
+`scikit-learn==1.4.2` and `pandas==2.2.1` is available.
 
 Usage
 -----

@@ -76,10 +76,10 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 python3.11 -m venv env-as
 python3.11 -m venv env-tpa
 
-# Install Auto-Sklearn environment (Python <=3.10 only)
+# Install Auto-Sklearn environment
 source env-as/bin/activate
 pip install --upgrade pip
-pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn==1.4.2 pandas matplotlib seaborn rich joblib
+pip install --prefer-binary auto-sklearn2 scikit-learn==1.4.2 pandas==2.2.1
 deactivate
 
 # Install TPOT + AutoGluon environment
