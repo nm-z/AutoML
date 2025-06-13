@@ -5,6 +5,7 @@
 - Git LFS setup completed, including tracking of `.pkl`, `.json`, `DataSets/`, and `05_outputs/` directories. Git history has been cleaned to properly track large files.
 - `orchestrator.py` `AttributeError` for duration calculation fixed.
 - Smoke test for `orchestrator.py` passed successfully. All engines (AutoGluon, Auto-Sklearn, TPOT) executed, data loaded, split, and artifacts saved.
+- Added README section on using pyenv with `automl-py310` and `automl-py311` environments.
 
 ## Remaining Action Items
 

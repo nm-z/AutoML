@@ -90,6 +90,32 @@ pip install setuptools tpot autogluon.tabular numpy scikit-learn pandas matplotl
 deactivate
 ```
 
+### Using `pyenv` for Multi-Python Development
+
+If you prefer managing Python versions with `pyenv`, ensure the
+`pyenv-virtualenv` plugin is installed. Create matching environments and
+set them for the project:
+
+```bash
+pyenv install 3.10.17
+pyenv install 3.11.12
+pyenv virtualenv 3.10.17 automl-py310
+pyenv virtualenv 3.11.12 automl-py311
+pyenv local automl-py311  # automatically activates in this directory
+```
+
+Activate an environment manually with:
+
+```bash
+pyenv activate automl-py311
+```
+
+Use `pyenv exec` to run scripts without an explicit activation:
+
+```bash
+pyenv exec python3.11 orchestrator.py --all --time 3600
+```
+
 ## Running the Orchestrator
 
 ```bash
