@@ -138,8 +138,13 @@ install_env_tpa_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
-    # Install all Python dependencies from requirements.txt using wheels only
-    pip install --only-binary=:all: -r requirements.txt
+    if [[ "$PYTHON_CMD" == *"3.11"* ]]; then
+        pip install --prefer-binary numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib \
+            tpot==0.12.2 autogluon.tabular xgboost lightgbm psutil python-logstash-async scipy
+    else
+        # Install all Python dependencies from requirements.txt using wheels only
+        pip install --only-binary=:all: -r requirements.txt
+    fi
 
     deactivate
     log_success "env-tpa dependencies installed successfully"
@@ -159,8 +164,8 @@ install_env_as_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
-    if [ "$PYTHON_MINOR" -ge 11 ]; then
-        log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
+    if [[ "$PYTHON_CMD" == *"3.11"* ]]; then
+        log_warning "Auto-Sklearn 0.15.0 is incompatible with Python 3.11; installing base stack only"
         pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
         pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
@@ -379,10 +384,10 @@ main() {
     # setup_pyenv  # Commented out to use system Python directly
     create_directories
     create_environments
-    install_env_tpa_deps
     if [ "$ENABLE_AS" = true ]; then
         install_env_as_deps
     fi
+    install_env_tpa_deps
     test_environments
     post_setup_check
     create_activation_scripts
