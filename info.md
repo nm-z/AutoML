@@ -103,7 +103,7 @@ Instead of manually picking which AutoML tool to use, this framework:
 ./activate-tpa.sh
 
 # 3. Run the competition
-python orchestrator.py --all --time 3600 \
+PYENV_VERSION=automl-harness pyenv exec python orchestrator.py --all --time 3600 \
   --data DataSets/3/predictors.csv \
   --target DataSets/3/targets.csv
 

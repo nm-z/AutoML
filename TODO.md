@@ -15,6 +15,8 @@
 - Add a `--tree` flag to `orchestrator.py` to optionally print artifact directories in tree form.
 - Create tests verifying tree-formatted output appears when the flag is used.
 
+- Add a helper script `run_orchestrator.sh` that sets `PYENV_VERSION=automl-harness` and invokes `pyenv exec python orchestrator.py`.
+
 ## Status
 
 The setup script now creates the `automl-harness` pyenv environment by default and installs all required packages. Activation is done via `pyenv activate automl-harness`.

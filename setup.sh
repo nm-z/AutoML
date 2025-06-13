@@ -249,7 +249,7 @@ main() {
     echo ""
     echo "Quick Start:"
     echo "  1. Activate: pyenv activate automl-harness"
-    echo "  2. Run: python orchestrator.py --all --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
+    echo "  2. Run: PYENV_VERSION=automl-harness pyenv exec python orchestrator.py --all --time 300 --data DataSets/3/predictors_Hold\\ 1\\ Full_20250527_151252.csv --target DataSets/3/targets_Hold\\ 1\\ Full_20250527_151252.csv"
     echo ""
     echo "For more information, see README.md"
     echo ""

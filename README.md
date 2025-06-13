@@ -86,7 +86,7 @@ pyenv deactivate
 pyenv activate automl-harness
 
 # Run the orchestrator (AutoGluon, Auto-Sklearn, and TPOT all run)
-python orchestrator.py --all --time 3600 \
+PYENV_VERSION=automl-harness pyenv exec python orchestrator.py --all --time 3600 \
   --data DataSets/3/predictors_Hold\ 1\ Full_20250527_151252.csv \
   --target DataSets/3/targets_Hold\ 1\ Full_20250527_151252.csv
 
