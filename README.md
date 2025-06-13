@@ -197,6 +197,7 @@ ensuring they persist between runs.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
+- **Quick test** – Run `./run_all.sh` to execute the orchestrator on a sample dataset. The script activates `env-tpa`, runs all engines for 60 seconds, then deactivates.
 
 ## License
 
