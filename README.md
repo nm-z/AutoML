@@ -97,6 +97,21 @@ pyenv deactivate
 
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
+## Running Worker Scripts
+
+If you execute the individual worker scripts directly (for example on a cluster
+that launches `tpot_worker.py` or `autosklearn_worker.py`), ensure the correct
+`pyenv` environment is selected. Set `PYENV_VERSION=automl-py310` before the
+Python command:
+
+```bash
+PYENV_VERSION=automl-py310 python tpot_worker.py [args]
+PYENV_VERSION=automl-py310 python autosklearn_worker.py [args]
+```
+
+This forces `pyenv` to use the `automl-py310` virtual environment even if
+`pyenv exec` isn't available in your subprocess environment.
+
 ## Project Structure
 
 ```
