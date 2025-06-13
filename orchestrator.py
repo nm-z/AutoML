@@ -57,9 +57,23 @@ RANDOM_STATE = 42
 N_SPLITS_CROSS_VALIDATION = 5
 N_REPEATS_CROSS_VALIDATION = 3
 
-# TODO: Define these more rigorously based on approved model families and preprocessors
-# MODEL_FAMILIES = ["linear", "tree", "ensemble", "neural_network", "svm"]
-# PREP_STEPS = ["scalers", "dimensionality", "outliers"]
+# Discover available model families and preprocessing steps from the components
+# package.  These are derived dynamically so the orchestrator automatically
+# tracks any new modules added to ``components``.
+_MODELS_DIR = Path(__file__).parent / "components" / "models"
+_PREP_DIR = Path(__file__).parent / "components" / "preprocessors"
+
+MODEL_FAMILIES = sorted(
+    f.stem for f in _MODELS_DIR.glob("*.py") if f.stem != "__init__"
+)
+
+PREP_STEPS = sorted(
+    f.stem
+    for sub in _PREP_DIR.iterdir()
+    if sub.is_dir()
+    for f in sub.glob("*.py")
+    if f.stem != "__init__"
+)
 
 # Wallclock limit for each engine, in seconds. This is a default and can be overridden by CLI.
 WALLCLOCK_LIMIT_SEC = 3600  # 1 hour
@@ -639,15 +653,36 @@ def _score(
 
 
 def _validate_components_availability() -> None:
-    """Validates that all required components (preprocessors, models) are available.
-    (Placeholder - not fully implemented yet)
-    """
-    logger.info("Validating components availability... (Not fully implemented)")
-    # TODO: Implement actual validation logic to ensure all specified components
-    # in MODEL_FAMILIES and PREP_STEPS exist in the components/ directory.
+    """Validate that all models and preprocessing steps exist on disk."""
+    missing_models = [
+        name for name in MODEL_FAMILIES if not (_MODELS_DIR / f"{name}.py").is_file()
+    ]
+
+    missing_preps = []
+    for prep in PREP_STEPS:
+        found = any(
+            (_PREP_DIR / sub / f"{prep}.py").is_file()
+            for sub in os.listdir(_PREP_DIR)
+            if (_PREP_DIR / sub).is_dir()
+        )
+        if not found:
+            missing_preps.append(prep)
+
+    if missing_models or missing_preps:
+        detail = []
+        if missing_models:
+            detail.append(f"Models: {', '.join(sorted(missing_models))}")
+        if missing_preps:
+            detail.append(f"Preprocessors: {', '.join(sorted(missing_preps))}")
+        raise RuntimeError(f"Missing component modules - {'; '.join(detail)}")
 
 def _cli() -> None:
     """Parses command-line arguments and orchestrates the AutoML pipeline."""
+    try:
+        _validate_components_availability()
+    except RuntimeError as exc:
+        logger.error(str(exc))
+        sys.exit(1)
     parser = argparse.ArgumentParser(
         description="\nAutoML Orchestrator – Meta-Search Controller",
         formatter_class=argparse.RawTextHelpFormatter,
