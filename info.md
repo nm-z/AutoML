@@ -43,10 +43,10 @@ This is where the **building blocks** live that the AutoML engines can choose fr
 ### **4. 🐍 Environment Hell Management**
 The **entire reason for the complexity** is Python version incompatibility:
 
-- **`env-as/`** - Auto-Sklearn environment (Python ≤3.10)
-- **`env-tpa/`** - TPOT + AutoGluon environment (Python 3.11+)
+- **`automl-py310`** - Auto-Sklearn environment (Python 3.10)
+- **`automl-py311`** - TPOT + AutoGluon environment (Python 3.11)
 - **`setup.sh`** - Creates both environments with correct dependencies
-- **`activate-*.sh`** - Switches between environments
+- Use `pyenv activate <env>` to switch between environments
 
 ---
 
@@ -96,16 +96,17 @@ Instead of manually picking which AutoML tool to use, this framework:
 ## **🎮 How To Use It**
 
 ```bash
-# 1. Setup environments (creates both env-as and env-tpa)
+# 1. Setup environments (creates automl-py310 and automl-py311)
 ./setup.sh
 
-# 2. Activate the main environment  
-./activate-tpa.sh
+# 2. Activate the Python 3.11 environment
+pyenv activate automl-py311
 
 # 3. Run the competition
 python orchestrator.py --all --time 3600 \
   --data DataSets/3/predictors.csv \
   --target DataSets/3/targets.csv
+pyenv deactivate
 
 # 4. Check results in 05_outputs/dataset_name/
 ```

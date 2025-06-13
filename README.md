@@ -79,21 +79,51 @@ pip install --only-binary=:all: -r requirements.txt
 pyenv deactivate
 ```
 
+### Multi-Version Environment Setup
+
+Auto-Sklearn only works on Python 3.10, while TPOT and AutoGluon prefer
+Python 3.11. Set up two environments to run all three engines:
+
+```bash
+pyenv install 3.10.14
+pyenv install 3.11.9
+pyenv virtualenv 3.10.14 automl-py310
+pyenv virtualenv 3.11.9 automl-py311
+
+# Install dependencies in each environment
+pyenv activate automl-py310
+pip install --upgrade pip
+pip install -r requirements.txt
+pyenv deactivate
+
+pyenv activate automl-py311
+pip install --upgrade pip
+# Comment out auto-sklearn and TPOT in requirements.txt if incompatible
+pip install -r requirements.txt
+pyenv deactivate
+```
+
 ## Running the Orchestrator
 
 ```bash
-# Activate the environment
-pyenv activate automl-harness
-
-# Run the orchestrator (AutoGluon, Auto-Sklearn, and TPOT all run)
+# Main orchestrator runs in Python 3.11
+pyenv activate automl-py311
 python orchestrator.py --all --time 3600 \
   --data DataSets/3/predictors_Hold\ 1\ Full_20250527_151252.csv \
   --target DataSets/3/targets_Hold\ 1\ Full_20250527_151252.csv
+pyenv deactivate
 
-# The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
-# together. The `--all` flag is optional but included here for clarity.
+# Auto-Sklearn and TPOT (if needed) from Python 3.10
+pyenv activate automl-py310
+python tpot_worker.py input.csv tpot_output.csv
+python autosklearn_worker.py input.csv autosklearn_output.csv
 pyenv deactivate
 ```
+
+:::task-stub{title="Switch to PYENV_VERSION if pyenv exec fails"}
+Set `PYENV_VERSION=automl-py310` before calling the worker scripts
+if `pyenv exec` is not available.
+:::
 
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
