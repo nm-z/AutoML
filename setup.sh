@@ -163,7 +163,7 @@ install_env_as_deps() {
         log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
         pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
-        pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+        pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==0.24.2 matplotlib seaborn rich joblib
     fi
 
     deactivate

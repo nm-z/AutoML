@@ -5,6 +5,7 @@
 - Git LFS setup completed, including tracking of `.pkl`, `.json`, `DataSets/`, and `05_outputs/` directories. Git history has been cleaned to properly track large files.
 - `orchestrator.py` `AttributeError` for duration calculation fixed.
 - Smoke test for `orchestrator.py` passed successfully. All engines (AutoGluon, Auto-Sklearn, TPOT) executed, data loaded, split, and artifacts saved.
+- Resolved scikit-learn version conflict by using Python markers in `requirements.txt` and installing `scikit-learn==0.24.2` for the Auto-Sklearn environment.
 
 ## Remaining Action Items
 
