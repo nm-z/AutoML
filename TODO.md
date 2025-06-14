@@ -25,3 +25,8 @@
 
 The setup script now creates `automl-py310` and `automl-py311` pyenv environments for improved version management. Recent PR review cycle completed with significant improvements to environment management, testing capabilities, and documentation. All PRs have been processed and repository is in clean state.
 
+
+## Dataset 2 Training Results
+- Champion engine: AutoGluon (R2=0.8383 on holdout)
+- Auto-sklearn failed: module not installed
+- TPOT failed: unexpected config_dict argument
