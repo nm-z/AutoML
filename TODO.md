@@ -19,6 +19,8 @@
 - Fixed Makefile indentation issues to resolve "missing separator" errors (learned from rejected PRs).
 - Added offline wheel installation documentation to README.md (learned from rejected PRs).
 - Enhanced TPOT parameter validation (learned from rejected PRs).
+- Implemented offline wheel installation support with download script and
+  `--offline` flag for `setup.sh`.
 
 ## Remaining Action Items
 
@@ -36,7 +38,6 @@
 - Implement rich.tree console logging enhancement without reverting pyenv initialization  
 - Fix Makefile indentation issues properly without reverting other changes
 - Add TPOT parameter validation improvements without reverting pyenv initialization
-- Create proper offline wheel installation support without reverting recent changes
 
 ## Status
 

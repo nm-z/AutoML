@@ -130,6 +130,24 @@ pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pa
 pyenv deactivate
 ```
 
+### Preparing Offline Wheels
+
+If your target machine lacks internet access, download all required packages in
+advance. Run the helper script while online:
+
+```bash
+./scripts/download_wheels.sh /path/to/wheels
+```
+
+Copy the resulting directory to the offline machine and install using:
+
+```bash
+./setup.sh --offline --wheel-dir /path/to/wheels [--with-as]
+```
+
+The `--offline` flag tells `setup.sh` to install dependencies only from the
+specified wheel directory using `pip --no-index`.
+
 ## Running the Orchestrator
 
 ```bash

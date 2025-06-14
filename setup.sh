@@ -7,6 +7,10 @@ set -e  # Exit on any error
 
 # Optional Auto-Sklearn environment
 ENABLE_AS=false
+OFFLINE=false
+WHEEL_DIR="wheels"
+PIP_FLAGS=""
+
 
 # Colors for output
 RED='\033[0;31m'
@@ -142,9 +146,9 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     if [ -f requirements-py311.txt ]; then
-        pip install --only-binary=:all: -r requirements-py311.txt
+        pip install $PIP_FLAGS --only-binary=:all: -r requirements-py311.txt
     else
-        pip install --only-binary=:all: -r requirements.txt
+        pip install $PIP_FLAGS --only-binary=:all: -r requirements.txt
     fi
 
     pyenv deactivate
@@ -167,12 +171,12 @@ install_env_as_deps() {
 
     if [ "$PYTHON_MINOR" -ge 11 ]; then
         log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+        pip install $PIP_FLAGS --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
         if [ -f requirements-py310.txt ]; then
-            pip install --only-binary=:all: -r requirements-py310.txt
+            pip install $PIP_FLAGS --only-binary=:all: -r requirements-py310.txt
         else
-            pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+            pip install $PIP_FLAGS --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
         fi
     fi
 
@@ -379,10 +383,26 @@ main() {
     echo ""
 
     for arg in "$@"; do
-        if [ "$arg" = "--with-as" ]; then
-            ENABLE_AS=true
-        fi
+        case "$arg" in
+            --with-as)
+                ENABLE_AS=true
+                ;;
+            --offline)
+                OFFLINE=true
+                ;;
+            --wheel-dir=*)
+                WHEEL_DIR="${arg#*=}"
+                ;;
+        esac
     done
+
+    if [ "$OFFLINE" = true ]; then
+        if [ ! -d "$WHEEL_DIR" ]; then
+            log_error "Wheel directory '$WHEEL_DIR' not found"
+            exit 1
+        fi
+        PIP_FLAGS="--no-index --find-links $WHEEL_DIR"
+    fi
     
     check_system
     install_system_deps
