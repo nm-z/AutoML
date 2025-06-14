@@ -17,7 +17,20 @@ fi
 # Determine script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Activate the environment
+# Ensure required Python packages are installed
+python - <<'EOF'
+import importlib
+import sys
+required = ['pandas', 'numpy', 'sklearn', 'rich', 'joblib']
+missing = [m for m in required if importlib.util.find_spec(m) is None]
+sys.exit(len(missing))
+EOF
+if [ $? -ne 0 ]; then
+    echo "Installing Python dependencies from requirements.txt"
+    pip install -r "$SCRIPT_DIR/requirements.txt"
+fi
+
+# Activate the environment if desired
 # Replace with the appropriate environment for your project
 # source "${SCRIPT_DIR}/env-tpa/bin/activate" # Example for a virtual environment
 

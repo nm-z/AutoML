@@ -159,6 +159,8 @@ Run the helper script to verify your setup. It activates the default environment
 ```bash
 ./run_all.sh
 ```
+The script checks for core packages like `pandas` and installs them from
+`requirements.txt` if they are missing.
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
 ## Project Structure
