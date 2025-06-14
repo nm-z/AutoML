@@ -20,6 +20,7 @@
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
+- **New:** Ensure Auto-Sklearn can install by creating a Python 3.10 environment (run `./setup.sh --with-as`), since it fails on Python 3.11.
 
 ## Status
 
