@@ -159,6 +159,7 @@ Run the helper script to verify your setup. It activates the default environment
 ./run_all.sh
 ```
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
+Running the orchestrator with only one engine (e.g., AutoGluon) is not currently supported because `AGENTS.md` mandates that all three wrappers run together.
 
 ## Project Structure
 
