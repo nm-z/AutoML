@@ -120,13 +120,13 @@ pyenv virtualenv 3.10 automl-py310
 # Install Auto-Sklearn environment (Python <=3.10 only)
 pyenv activate automl-py310
 pip install --upgrade pip
-pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib
+pip install auto-sklearn==0.15.0 numpy==2.2.6 scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich==14.0.0 joblib==1.5.1
 pyenv deactivate
 
 # Install TPOT + AutoGluon environment
 pyenv activate automl-py311
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost lightgbm
+pip install setuptools tpot autogluon.tabular numpy==2.2.6 scikit-learn\>=1.4.2,<1.6 pandas==2.3.0 matplotlib seaborn rich==14.0.0 joblib==1.5.1 xgboost==3.0.2 lightgbm==4.6.0
 pyenv deactivate
 ```
 

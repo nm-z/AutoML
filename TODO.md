@@ -16,7 +16,7 @@
 - Modify `setup.sh` to skip automl-py310 creation gracefully when Python 3.10 is unavailable.
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
-- Add a missing `run_all.sh` script to launch the orchestrator with all three engines for a quick smoke test.
+- Investigate auto-sklearn dependency conflict and build from source with `scikit-learn>=1.4.2` support.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
 
