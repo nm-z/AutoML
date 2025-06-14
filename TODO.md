@@ -23,6 +23,7 @@
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
 - Apply the `deactivate` to `pyenv deactivate` fix from rejected PR #96 to `setup.sh`.
+- Detect missing `pyenv-virtualenv` plugin during setup and provide instructions to install it when `pyenv virtualenv` is unavailable.
 
 ## Status
 

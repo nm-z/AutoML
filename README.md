@@ -8,6 +8,14 @@
 ./setup.sh [--with-as]
 ```
 
+You can also invoke the same process through `make`:
+
+```bash
+make setup
+```
+If this fails with `pyenv: no such command 'virtualenv'`, install the
+`pyenv-virtualenv` plugin so `setup.sh` can create environments automatically.
+
 This automatically creates the `automl-py311` and optional `automl-py310`
 environments using **pyenv**. After running it, activate the environment before
 using the orchestrator:
@@ -245,6 +253,9 @@ ensuring they persist between runs.
   manually and install the required packages. If network access is restricted,
   bundle the required wheels or configure a local PyPI mirror so
   setup and `make test` can run offline.
+- **pyenv missing 'virtualenv'** – `make setup` uses `pyenv virtualenv` to create
+  environments. Install the `pyenv-virtualenv` plugin if you encounter
+  `pyenv: no such command 'virtualenv'`.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
