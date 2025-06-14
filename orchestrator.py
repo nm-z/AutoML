@@ -22,6 +22,25 @@ import traceback
 import sys
 from typing import Any, Dict, Tuple, Sequence, Optional
 
+import importlib.util
+
+# Verify required libraries are installed before continuing
+REQUIRED_LIBS = ["pandas", "numpy", "sklearn"]
+missing_libs = []
+for lib in REQUIRED_LIBS:
+    try:
+        importlib.import_module(lib)
+    except Exception:
+        missing_libs.append(lib)
+if missing_libs:
+    sys.stderr.write(
+        "Missing required packages: {}.\n".format(", ".join(missing_libs))
+    )
+    sys.stderr.write(
+        "Please run './setup.sh' or 'pip install -r requirements.txt' before running the orchestrator.\n"
+    )
+    raise SystemExit(1)
+
 import pandas as pd
 from rich.console import Console
 from rich.tree import Tree

@@ -23,6 +23,8 @@ pip install -r requirements.txt
 ```
 This step ensures modules like `pandas` are available before running `orchestrator.py`.
 
+`run_all.sh` will check for these libraries and abort if they are missing, so be sure to install them first.
+
 > **Note**
 > 
 > The AutoGluon engine depends on the `autogluon.tabular` package. If this library is missing, `autogluon_wrapper.py` falls back to a simple `LinearRegression`, which severely limits model quality. Run `./setup.sh` or the `pip install` command above to install the full AutoGluon dependencies and avoid the fallback.
