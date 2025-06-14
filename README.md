@@ -23,6 +23,9 @@ pip install -r requirements.txt
 ```
 This step ensures modules like `pandas` are available before running `orchestrator.py`.
 
+The provided `run_all.sh` helper will also install any missing packages before
+launching the orchestrator so you can quickly verify your setup.
+
 > **Note**
 > 
 > The AutoGluon engine depends on the `autogluon.tabular` package. If this library is missing, `autogluon_wrapper.py` falls back to a simple `LinearRegression`, which severely limits model quality. Run `./setup.sh` or the `pip install` command above to install the full AutoGluon dependencies and avoid the fallback.
@@ -154,7 +157,8 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+Run the helper script to verify your setup. It automatically activates the default environment,
+installs any missing Python packages, and runs all three engines for 60 seconds on the sample dataset:
 
 ```bash
 ./run_all.sh

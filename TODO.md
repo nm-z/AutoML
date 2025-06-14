@@ -19,6 +19,8 @@
 - Fixed Makefile indentation issues to resolve "missing separator" errors (learned from rejected PRs).
 - Added offline wheel installation documentation to README.md (learned from rejected PRs).
 - Enhanced TPOT parameter validation (learned from rejected PRs).
+- Added automatic environment activation and dependency check to `run_all.sh` so
+  required packages like pandas are installed before the orchestrator runs.
 
 ## Remaining Action Items
 
