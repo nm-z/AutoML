@@ -161,6 +161,15 @@ Run the helper script to verify your setup. It activates the default environment
 ```
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
+### Dataset 2 Baseline & Optimization
+Once Goal 1 is complete, run `scripts/baseline_d2.py` to establish a performance baseline:
+
+```bash
+python scripts/baseline_d2.py
+```
+This executes the orchestrator on Dataset 2 using all engines for one hour and records metrics under `05_outputs/dataset2_baseline`. Use these results to tune hyperparameters, iterate on feature engineering, and test ensemble methods.
+
+
 ## Project Structure
 
 ```

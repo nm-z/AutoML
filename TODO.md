@@ -31,8 +31,9 @@
 - Target: R² > 0.95
 
 **Sub-tasks**:
-- [ ] Baseline all engines on D2 (requires Goal 1 completion)
+- [ ] **ACTIVE**: Baseline all engines on D2 (requires Goal 1 completion)
 - [ ] Implement hyperparameter tuning strategies
+- [ ] Add `scripts/baseline_d2.py` baseline runner
 - [ ] Add feature engineering pipeline
 - [ ] Experiment with ensemble methods
 - [ ] Document optimization strategies and results
