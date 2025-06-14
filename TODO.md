@@ -10,6 +10,7 @@
 - Added `--tree` flag to `orchestrator.py` to display artifact directory trees and implemented tests verifying the output.
 - Reviewed and processed 9 pull requests: accepted 4 valuable PRs (run_all.sh, offline setup docs, tree flag, pyenv migration) and declined 5 problematic PRs (regressions, breaking changes, duplicates).
 - Added offline setup documentation for restricted network environments.
+- Implemented `download_wheels.sh` script and OFFLINE_WHEELS support for offline tests.
 - Completed systematic PR review and cleanup: processed all open PRs (13 total), closed duplicates and problematic PRs, maintained clean repository state.
 - Fixed `run_all.sh` so it initializes pyenv when run in a non-interactive shell.
 - Completed systematic review of PRs #94-#97: merged PR #97 (pyenv initialization fix) and rejected PRs #94-#96 (all attempted to revert the pyenv improvements).
@@ -22,7 +23,6 @@
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
-- Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
 - Apply the `deactivate` to `pyenv deactivate` fix from rejected PR #96 to `setup.sh`.
 
 ## Status

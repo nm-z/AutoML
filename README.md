@@ -246,6 +246,23 @@ ensuring they persist between runs.
   bundle the required wheels or configure a local PyPI mirror so
   setup and `make test` can run offline.
 
+### Offline Setup
+
+If your environment restricts network access, first download the required
+packages while online:
+
+```bash
+./scripts/download_wheels.sh /path/to/wheels
+```
+
+Then set the `OFFLINE_WHEELS` environment variable to that directory before
+running `setup.sh` or `make test`:
+
+```bash
+export OFFLINE_WHEELS=/path/to/wheels
+make test
+```
+
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
 
