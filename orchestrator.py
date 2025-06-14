@@ -480,6 +480,12 @@ def _runner(name: str, X_obj, y_obj, t_sec, r_dir, met, n_cpus, q_child: _mp.Que
 
     wrapper_class = _get_automl_engine(name)
 
+    # Ensure data passed to scikit-learn is writeable after multiprocessing
+    if hasattr(X_obj, "copy"):
+        X_obj = X_obj.copy()
+    if hasattr(y_obj, "copy"):
+        y_obj = y_obj.copy()
+
     # Configure logging for the child process to the main run.log file
     if not logging.root.handlers:
         logging.basicConfig(

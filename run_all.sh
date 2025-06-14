@@ -5,8 +5,10 @@ set -euo pipefail
 # Determine script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Activate default environment
-source "$SCRIPT_DIR/activate-tpa.sh"
+# Activate default environment if available
+if [[ -f "$SCRIPT_DIR/env-tpa/bin/activate" ]]; then
+  source "$SCRIPT_DIR/activate-tpa.sh"
+fi
 
 # Execute orchestrator with sample dataset
 python "$SCRIPT_DIR/orchestrator.py" --all --time 60 \

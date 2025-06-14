@@ -159,6 +159,7 @@ Run the helper script to verify your setup. It activates the default environment
 ./run_all.sh
 ```
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
+If `autogluon.tabular` is unavailable, the AutoGluon engine automatically falls back to `LinearRegression` so the smoke test still succeeds.
 
 ## Project Structure
 
