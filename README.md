@@ -8,9 +8,9 @@
 ./setup.sh [--with-as]
 ```
 
-This automatically creates the `automl-py311` and optional `automl-py310`
-environments using **pyenv**. After running it, activate the environment before
-using the orchestrator:
+This automatically creates the `automl-py311` environment and, when Python 3.10
+is available, the optional `automl-py310` environment using **pyenv**. After
+running it, activate the environment before using the orchestrator:
 
 ```bash
 pyenv activate automl-py311
@@ -38,7 +38,7 @@ This repository has three main branches:
 
 This project now uses **pyenv** to maintain two dedicated environments:
 
-- **`automl-py310`** – Auto-Sklearn (Python 3.10)
+- **`automl-py310`** – Auto-Sklearn (Python 3.10, created only if Python 3.10 is available)
 - **`automl-py311`** – TPOT + AutoGluon (Python 3.11)
 
 ### Quick Environment Usage
@@ -115,7 +115,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 # Create environments with pyenv
 pyenv virtualenv 3.11 automl-py311
 # Optional Auto-Sklearn environment
-pyenv virtualenv 3.10 automl-py310
+pyenv virtualenv 3.10 automl-py310  # optional, skip if Python 3.10 unavailable
 
 # Install Auto-Sklearn environment (Python <=3.10 only)
 pyenv activate automl-py310
