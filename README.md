@@ -78,7 +78,7 @@ pyenv deactivate
    You can call scripts without activating an environment by using `pyenv exec`:
 
    ```bash
-   pyenv exec python3.11 orchestrator.py --all
+   pyenv exec python3.11 orchestrator.py
    ```
 
 4. **Troubleshooting**
@@ -137,7 +137,7 @@ pyenv deactivate
 pyenv activate automl-py311
 
 # Run the orchestrator (AutoGluon, Auto-Sklearn, and TPOT all run)
-python orchestrator.py --all --time 3600 \
+python orchestrator.py --time 3600 \
   --data DataSets/3/predictors_Hold\ 1\ Full_20250527_151252.csv \
   --target DataSets/3/targets_Hold\ 1\ Full_20250527_151252.csv \
   --cpus 4
@@ -147,7 +147,7 @@ python orchestrator.py --all --time 3600 \
 # Docker container with restricted CPU quotas.
 
 # The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
-# together. The `--all` flag is optional but included here for clarity.
+# together. No additional flags are required.
 pyenv deactivate
 ```
 
@@ -158,7 +158,7 @@ Run the helper script to verify your setup. It activates the default environment
 ```bash
 ./run_all.sh
 ```
-All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
+All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. No flags are needed to include all engines.
 
 ## Project Structure
 

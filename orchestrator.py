@@ -735,26 +735,6 @@ def _cli() -> None:
         help=f"Evaluation metric (e.g., r2, neg_mean_squared_error). Default: {DEFAULT_METRIC}",
     )
     parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Run all available AutoML engines",
-    )
-    parser.add_argument(
-        "--autogluon",
-        action="store_true",
-        help="Run only the AutoGluon engine",
-    )
-    parser.add_argument(
-        "--autosklearn",
-        action="store_true",
-        help="Run only the Auto-Sklearn engine",
-    )
-    parser.add_argument(
-        "--tpot",
-        action="store_true",
-        help="Run only the TPOT engine",
-    )
-    parser.add_argument(
         "--no-ensemble",
         action="store_true",
         help="Disable ensemble creation even if multiple engines are run",
@@ -774,22 +754,8 @@ def _cli() -> None:
         logger.error(str(exc))
         sys.exit(1)
 
-    if not (args.all or args.autogluon or args.autosklearn or args.tpot):
-        parser.error("At least one engine must be selected: --all, --autogluon, --autosklearn, or --tpot")
-
-    selected_engines = []
-    if args.all:
-        selected_engines = ["autogluon", "autosklearn", "tpot"]
-    else:
-        if args.autogluon:
-            selected_engines.append("autogluon")
-        if args.autosklearn:
-            selected_engines.append("autosklearn")
-        if args.tpot:
-            selected_engines.append("tpot")
-
-    if not selected_engines:
-        parser.error("No engines selected. Please use --all or specify at least one engine with --autogluon, --autosklearn, or --tpot.")
+    # Orchestration always runs all supported engines together
+    selected_engines = ["autogluon", "autosklearn", "tpot"]
 
     # Define unique run directory for artifacts
     timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S")

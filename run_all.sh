@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/activate-tpa.sh"
 
 # Execute orchestrator with sample dataset
-python "$SCRIPT_DIR/orchestrator.py" --all --time 60 \
+python "$SCRIPT_DIR/orchestrator.py" --time 60 \
   --data "$SCRIPT_DIR/DataSets/1/D1-Predictors.csv" \
   --target "$SCRIPT_DIR/DataSets/1/D1-Targets.csv" "$@"
 

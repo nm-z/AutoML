@@ -2,6 +2,7 @@
 
 ## Completed Tasks
 - Added run_all.sh for 60-second smoke test.
+- Orchestrator CLI simplified: engine selection flags removed; all runs now execute AutoGluon, Auto-Sklearn, and TPOT together.
 
 - Git LFS setup completed, including tracking of `.pkl`, `.json`, `DataSets/`, and `05_outputs/` directories. Git history has been cleaned to properly track large files.
 - `orchestrator.py` `AttributeError` for duration calculation fixed.
@@ -17,7 +18,6 @@
 - Add a `--tree` flag to `orchestrator.py` to optionally print artifact directories in tree form.
 - Create tests verifying tree-formatted output appears when the flag is used.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
-- Add a missing `run_all.sh` script to launch the orchestrator with all three engines for a quick smoke test.
 
 ## Status
 
