@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""TPOT + AutoGluon Runner (Python 3.11 – automl-py311)
+r"""TPOT + AutoGluon Runner (Python 3.11 – automl-py311)
 
 This script is meant to be executed from the *automl-py311* pyenv virtual
 environment. It expects that `tpot==1.0.0` and `autogluon.tabular`

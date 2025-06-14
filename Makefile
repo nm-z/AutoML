@@ -1,4 +1,4 @@
-PHONY += setup test clean
+.PHONY: setup test clean
 
 setup:
 	@echo "Setting up the AutoML Harness environment..."

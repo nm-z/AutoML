@@ -147,8 +147,8 @@ python orchestrator.py --all --time 3600 \
 # BLAS libraries may use. This is especially important when running inside a
 # Docker container with restricted CPU quotas.
 
-# The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
-# together. The `--all` flag is optional but included here for clarity.
+# The orchestrator always runs Auto-Sklearn, TPOT and AutoGluon
+# together. The `--all` flag is implied.
 pyenv deactivate
 ```
 

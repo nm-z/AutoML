@@ -16,7 +16,10 @@
 - Modify `setup.sh` to skip automl-py310 creation gracefully when Python 3.10 is unavailable.
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
-- Add a missing `run_all.sh` script to launch the orchestrator with all three engines for a quick smoke test.
+- Document and enforce that all orchestrations run Auto-Sklearn, TPOT, and AutoGluon together.
+- Update README to clarify that the `--all` flag is implied.
+- Update Makefile to declare phony targets correctly.
+- Fix escape sequence warning in `run_tpot_ag.py` docstring.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
 
