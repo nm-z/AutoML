@@ -13,6 +13,8 @@
 ## Remaining Action Items
 
 - Update environment setup to ensure required Python packages (e.g., pandas) are installed before running the orchestrator.
+- Document the need for the **pyenv-virtualenv** plugin so `setup.sh` and
+  `run_all.sh` can use `pyenv activate`.
 - Modify `setup.sh` to skip automl-py310 creation gracefully when Python 3.10 is unavailable.
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.

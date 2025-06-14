@@ -12,6 +12,11 @@ This automatically creates the `automl-py311` and optional `automl-py310`
 environments using **pyenv**. After running it, activate the environment before
 using the orchestrator:
 
+> **Important**: `setup.sh` and `run_all.sh` rely on the `pyenv-virtualenv`
+> plugin. Install it so the `pyenv virtualenv` and `pyenv activate` commands
+> are available. If the plugin is missing, create and activate a standard
+> `venv` manually instead.
+
 ```bash
 pyenv activate automl-py311
 ```

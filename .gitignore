@@ -211,6 +211,7 @@ tpot_*_pipeline.py
 .autogluon/
 autogluon_models/
 05_outputs/**/autogluon_output/
+automl-py311/
 
 # MLflow
 mlruns/
