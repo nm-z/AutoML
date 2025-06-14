@@ -10,6 +10,7 @@
 - Added `--tree` flag to `orchestrator.py` to display artifact directory trees and implemented tests verifying the output.
 - Reviewed and processed 9 pull requests: accepted 4 valuable PRs (run_all.sh, offline setup docs, tree flag, pyenv migration) and declined 5 problematic PRs (regressions, breaking changes, duplicates).
 - Added offline setup documentation for restricted network environments.
+- Removed single-engine flags so orchestrator always runs all three engines by default.
 
 ## Remaining Action Items
 
