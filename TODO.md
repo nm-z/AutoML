@@ -10,6 +10,7 @@
 - Added `--tree` flag to `orchestrator.py` to display artifact directory trees and implemented tests verifying the output.
 - Reviewed and processed 9 pull requests: accepted 4 valuable PRs (run_all.sh, offline setup docs, tree flag, pyenv migration) and declined 5 problematic PRs (regressions, breaking changes, duplicates).
 - Added offline setup documentation for restricted network environments.
+- Replaced leftover `deactivate` command in `setup.sh` with `pyenv deactivate`.
 
 ## Remaining Action Items
 
@@ -19,6 +20,7 @@
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
+- Fix `make test` target in the Makefile to resolve the "missing separator" error.
 - Review and process 4 new open pull requests (#88, #89, #90, #91).
 
 ## Status
