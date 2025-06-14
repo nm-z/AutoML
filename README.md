@@ -169,6 +169,8 @@ The repository provides a convenience script to launch the orchestrator on **Dat
 ```
 This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`.
 
+The orchestrator now applies a light feature engineering pipeline before model training. The pipeline standardizes numeric columns and reduces dimensionality with PCA. It is implemented in `scripts/feature_engineering.py` and runs automatically for every dataset.
+
 ## Project Structure
 
 ```
@@ -180,6 +182,7 @@ AutoML-Harness/
 ├── engines/                     # AutoML engine wrappers
 ├── components/                  # Preprocessors and models
 ├── DataSets/                    # Input datasets
+├── scripts/feature_engineering.py # Feature engineering helpers
 ├── 05_outputs/                  # Generated artifacts and results
 └── requirements.txt             # Base dependencies
 ```
