@@ -77,6 +77,7 @@
 - [ ] Initial training runs with all engines
 - [ ] Performance baseline establishment
 - [ ] Comparison with D1 and D2 results
+- [ ] Ensure orchestrations run `auto_sklearn_wrapper`, `tpot_wrapper`, and `autogluon_wrapper` together
 
 ## 📋 Completed Tasks Archive
 

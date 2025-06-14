@@ -184,6 +184,21 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 - **`*.log`** - Detailed execution logs
 Pass `--tree` to print this directory structure when the run finishes.
 
+## Future Dataset (D3)
+
+Dataset 3 will introduce new predictors and targets for extended benchmarking.
+When these files become available, run the orchestrator with all three engines:
+
+```bash
+pyenv activate automl-py311
+python orchestrator.py --all --data DataSets/3/<predictors.csv> \
+  --target DataSets/3/<targets.csv>
+pyenv deactivate
+```
+
+This ensures `auto_sklearn_wrapper`, `tpot_wrapper`, and `autogluon_wrapper` all
+train on D3 before selecting a champion model.
+
 ## System Requirements
 
 - Linux (recommended) or macOS
