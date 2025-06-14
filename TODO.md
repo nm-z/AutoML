@@ -118,4 +118,6 @@
 4. **Documentation**: Include training results, error logs, and performance data in PRs
 5. **Testing**: Verify changes don't break existing pyenv initialization or smoke tests
 6. **TODO Format**: Preserve this goal-oriented structure in any TODO modifications
+7. **Environment Validation**: If `run_d2.sh` fails with `pyenv: no such command 'virtualenv-init'`, install the `pyenv-virtualenv` plugin and rerun `setup.sh`.
+8. **Auto-Sklearn Build Issues**: `pip install` may fail with `metadata-generation-failed`. Ensure build dependencies are installed or use prebuilt wheels.
 

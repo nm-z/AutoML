@@ -282,6 +282,8 @@ ensuring they persist between runs.
 - **Auto-Sklearn missing** – If you encounter `ModuleNotFoundError: autosklearn`,
   activate the Auto-Sklearn environment and run `python scripts/check_autosklearn_install.py`
   to verify the installation.
+- **`pyenv virtualenv-init` not found** – If `run_d2.sh` fails with `pyenv: no such command 'virtualenv-init'`, ensure the `pyenv-virtualenv` plugin is installed and reload your shell or rerun `./setup.sh`.
+- **Auto-Sklearn install failures** – A `metadata-generation-failed` error during `pip install` indicates missing build dependencies. Install the system packages listed in the Manual Installation section or use the provided wheels.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
