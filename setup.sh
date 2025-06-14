@@ -190,10 +190,11 @@ create_directories() {
 test_environments() {
     log_info "Testing environment installations..."
     
-    # Test env-as only if it exists
-    if [ -d "env-as" ]; then
-        log_info "Testing env-as environment..."
-        source env-as/bin/activate
+    # Test env-as only when enabled
+    if [ "$ENABLE_AS" = true ]; then
+        if [ -d "env-as" ]; then
+            log_info "Testing env-as environment..."
+            source env-as/bin/activate
 
         if [[ "$PYTHON_CMD" == "python3.13" ]]; then
             python -c "
@@ -218,9 +219,13 @@ print(f'  - NumPy version: {np.__version__}')
 print(f'  - Pandas version: {pd.__version__}')
 "
         fi
-        deactivate
+            deactivate
+        else
+            log_error "env-as environment requested but not found."
+            return 1
+        fi
     else
-        log_warning "env-as environment not found. Skipping Auto-Sklearn test."
+        log_info "env-as not enabled; skipping Auto-Sklearn test."
     fi
     
     # Test env-tpa

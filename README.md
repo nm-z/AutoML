@@ -238,12 +238,14 @@ ensuring they persist between runs.
   Optionally switch to the Auto-Sklearn environment with `pyenv activate automl-py310`.
   Deactivate the current environment at any time using `pyenv deactivate`.
 
-- **Setup problems** – If `./setup.sh` fails, follow the instructions in the
-  *Manual Installation* section to create `env-as` and `env-tpa` manually and
-  install the required packages.
+  - **Setup problems** – If `./setup.sh` fails, follow the instructions in the
+    *Manual Installation* section to create `env-as` and `env-tpa` manually and
+    install the required packages.
+  - **No Auto-Sklearn tests** – `setup.sh` skips the Auto-Sklearn activation test
+    when the `env-as` environment is not created.
 
-- **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
-  on Python 3.13. Use Python 3.11 for full functionality.
+  - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
+    on Python 3.13. Use Python 3.11 for full functionality.
 
 ## License
 

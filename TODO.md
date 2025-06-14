@@ -7,11 +7,11 @@
 - `orchestrator.py` `AttributeError` for duration calculation fixed.
 - Smoke test for `orchestrator.py` passed successfully. All engines (AutoGluon, Auto-Sklearn, TPOT) executed, data loaded, split, and artifacts saved.
 - Resolved scikit-learn version conflict by specifying `scikit-learn>=1.4.2,<1.6` so Auto-Sklearn and TPOT install together.
+- Updated `setup.sh` to skip the Auto-Sklearn activation test when the `env-as` environment is not enabled.
 
 ## Remaining Action Items
 
 - Update environment setup to ensure required Python packages (e.g., pandas) are installed before running the orchestrator.
-- Modify `setup.sh` to either create `env-as` or skip the activation test if it is not needed.
 - Update `setup.sh` to create `automl-py310` and `automl-py311` pyenv environments automatically.
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Add a `--tree` flag to `orchestrator.py` to optionally print artifact directories in tree form.
