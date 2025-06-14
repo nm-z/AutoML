@@ -588,7 +588,7 @@ def _meta_search_concurrent(
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    root_tree = Tree("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
 
     # Discover available engines
     discovered_engines = discover_available()
@@ -620,16 +620,22 @@ def _meta_search_concurrent(
     per_engine_fitted_models: Dict[str, Any] = {}
     per_engine_metrics: Dict[str, Dict[str, float]] = {}
 
-    for _ in workers: # Iterate as many times as there are workers
+    for _ in workers:  # Iterate as many times as there are workers
         eng_name, fitted_model, metrics = q.get()
-        if fitted_model is not None: # Only store successful results
+        if fitted_model is not None:  # Only store successful results
             per_engine_fitted_models[eng_name] = fitted_model
             per_engine_metrics[eng_name] = metrics
+            engine_node = root_tree.add(f"[bold blue]{eng_name} completed[/bold blue]")
+            engine_node.add(f"R²: {metrics['r2_mean']:.4f} (±{metrics['r2_std']:.4f})")
+            engine_node.add(f"RMSE: {metrics['rmse_mean']:.4f} (±{metrics['rmse_std']:.4f})")
+            engine_node.add(f"MAE: {metrics['mae_mean']:.4f} (±{metrics['mae_std']:.4f})")
         else:
             error_msg = metrics.get('error', 'Unknown error')
             error_tb = metrics.get('traceback', 'No traceback available')
-            console.print(f"[red]✗ {eng_name} error: {error_msg}[/]")
-            logger.error(f"[Orchestrator] Error from {eng_name} child process:\n%s", error_tb)
+            root_tree.add(f"[bold red]{eng_name} error: {error_msg}[/bold red]")
+            logger.error(
+                "[Orchestrator] Error from %s child process:\n%s", eng_name, error_tb
+            )
 
     for worker in workers: # Wait for all processes to finish
         worker.join()
@@ -653,7 +659,11 @@ def _meta_search_concurrent(
         logger.error("Could not determine a champion model from concurrent run.")
         raise RuntimeError("Could not determine a champion model from concurrent run.")
 
-    logger.info(f"Champion model selected from concurrent run: {champion_engine_name} with mean R² of {best_r2_score:.4f}")
+    logger.info(
+        f"Champion model selected from concurrent run: {champion_engine_name} with mean R² of {best_r2_score:.4f}"
+    )
+
+    console.print(root_tree)
 
     return champion_model, per_engine_fitted_models, per_engine_metrics
 
