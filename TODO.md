@@ -20,8 +20,10 @@
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
+- Add integration test verifying `TPOTRegressor` initializes with the expected parameters.
 
 ## Status
 
 The setup script now creates `automl-py310` and `automl-py311` pyenv environments for improved version management. Recent PR review cycle completed with significant improvements to environment management, testing capabilities, and documentation. All PRs have been processed and repository is in clean state.
 
+:::task-stub{title="Add TPOTRegressor integration test"}

@@ -162,6 +162,7 @@ class TPOTEngine(BaseEngine):
                 scoring=tpot_metric,
                 n_jobs=self.n_cpus,  # Prevent nested parallelism – orchestrator handles outer level
                 random_state=self.seed,
+                cv=5,
                 max_time_mins=max(1, self.timeout_sec // 60),
                 verbosity=2,
             )
