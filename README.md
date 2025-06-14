@@ -159,6 +159,7 @@ Run the helper script to verify your setup. It activates the default environment
 ```bash
 ./run_all.sh
 ```
+If the script fails with missing modules or `pyenv` errors, run `./setup.sh` first to install dependencies and initialize the environments.
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
 ## Project Structure
