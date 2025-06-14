@@ -154,9 +154,11 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset. Provide the predictor and target CSV paths via environment variables:
 
 ```bash
+DATA=DataSets/1/D1-Predictors.csv \
+TARGET=DataSets/1/D1-Targets.csv \
 ./run_all.sh
 ```
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.

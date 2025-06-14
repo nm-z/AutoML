@@ -43,7 +43,8 @@
 - [x] Smoke test passes for basic orchestrator functionality
 - [ ] **ACTIVE**: Improve smoke test documentation and error handling
 - [ ] Verify `run_all.sh` works with all dataset combinations
-- [ ] Add integration tests for all three engines
+- [ ] `run_all.sh` currently fails without pyenv and dataset args
+- [x] Add integration tests for all three engines
 
 ### Code Quality & Maintenance
 - [x] Resolved scikit-learn version conflicts between engines
