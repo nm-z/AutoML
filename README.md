@@ -8,9 +8,11 @@
 ./setup.sh [--with-as]
 ```
 
-This automatically creates the `automl-py311` and optional `automl-py310`
-environments using **pyenv**. After running it, activate the environment before
-using the orchestrator:
+This automatically creates the `automl-py311` environment and, when
+Python 3.10 is available, an optional `automl-py310` environment using
+**pyenv**. If Python 3.10 cannot be installed the Auto-Sklearn environment is
+skipped. After running it, activate the environment before using the
+orchestrator:
 
 ```bash
 pyenv activate automl-py311
@@ -114,7 +116,7 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ```bash
 # Create environments with pyenv
 pyenv virtualenv 3.11 automl-py311
-# Optional Auto-Sklearn environment
+# Optional Auto-Sklearn environment (only if Python 3.10 is available)
 pyenv virtualenv 3.10 automl-py310
 
 # Install Auto-Sklearn environment (Python <=3.10 only)
