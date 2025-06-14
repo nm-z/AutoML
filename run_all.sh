@@ -41,7 +41,8 @@ for ds in "$SCRIPT_DIR"/DataSets/*; do
             --data "$predictors" \
             --target "$targets" \
             --time 60 \
-            --all
+            --all \
+            --tree
     fi
 done
 

@@ -66,22 +66,36 @@ TPOT_METRIC_MAP = {
 
 
 def _build_frozen_config(model_families: Sequence[str], prep_steps: Sequence[str]) -> dict:
-    """Return a TPOT *config_dict* limited to supported Regressors & Transformers."""
+    """Return a TPOT *config_dict* limited to supported regressors & transformers.
+
+    Any unknown model families or preprocessors raise ``ValueError`` so that
+    mis-typed component names are surfaced early.
+    """
+
+    invalid_models = [m for m in model_families if m not in _MODEL_SPACE]
+    invalid_preps = [p for p in prep_steps if p not in _PREPROCESSOR_SPACE]
+    if invalid_models or invalid_preps:
+        problems = []
+        if invalid_models:
+            problems.append(f"models: {', '.join(invalid_models)}")
+        if invalid_preps:
+            problems.append(f"preprocessors: {', '.join(invalid_preps)}")
+        raise ValueError("Unknown TPOT components - " + "; ".join(problems))
+
     frozen: dict[str, dict] = {}
 
     # Add regressor primitives (model families)
     for fam in model_families:
         tpot_name = TPOT_COMPONENT_MAP.get(fam)
         if tpot_name:
-            # TPOT's config validation is lenient, so trust the mapping
             frozen[tpot_name] = _MODEL_SPACE.get(fam, {})
 
-    # Add pre-processing primitives
     # Add pre-processing primitives
     for prep in prep_steps:
         tpot_name = TPOT_COMPONENT_MAP.get(prep)
         if tpot_name:
             frozen[tpot_name] = _PREPROCESSOR_SPACE.get(prep, {})
+
     return frozen
 
 
@@ -140,7 +154,9 @@ class TPOTEngine(BaseEngine):
         self._metric = kwargs.get("metric", DEFAULT_METRIC) # Store the metric
 
         custom_tpot_config = _build_frozen_config(model_families, prep_steps)
-        tpot_metric = TPOT_METRIC_MAP.get(self._metric, "r2")
+        if self._metric not in TPOT_METRIC_MAP:
+            raise ValueError(f"Unsupported TPOT metric: {self._metric}")
+        tpot_metric = TPOT_METRIC_MAP[self._metric]
 
         try:
             from tpot import TPOTRegressor

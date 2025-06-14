@@ -25,6 +25,10 @@ from typing import Any, Dict, Tuple, Sequence, Optional
 import pandas as pd
 from rich.console import Console
 from rich.tree import Tree
+try:
+    from rich.progress import Progress, SpinnerColumn, BarColumn, TimeElapsedColumn
+except Exception:  # pragma: no cover - fallback for stripped Rich
+    Progress = SpinnerColumn = BarColumn = TimeElapsedColumn = object  # type: ignore
 import subprocess # Added subprocess
 
 from scripts.data_loader import load_data  # Data loader helper
@@ -327,11 +331,22 @@ def _meta_search_sequential(
         raise RuntimeError("No AutoML engines found.")
 
     root = Tree("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
+    progress = Progress(
+        SpinnerColumn(),
+        "[progress.description]{task.description}",
+        BarColumn(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    )
 
-    for name, wrapper_module in discovered_engines.items():
-        engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
-        engine_start_time = time.perf_counter()
-        logger.info("[Orchestrator] Starting %s engine training...", name)
+    with progress:
+        task = progress.add_task("Running engines", total=len(discovered_engines))
+        for name, wrapper_module in discovered_engines.items():
+            progress.update(task, description=f"{name}: fitting")
+            engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
+            engine_start_time = time.perf_counter()
+            logger.info("[Orchestrator] Starting %s engine training...", name)
 
         try:
             engine_class_name = wrapper_module.__all__[0] # Assuming the class name is the first in __all__
@@ -391,6 +406,8 @@ def _meta_search_sequential(
             cv_node.add(f"R²: {per_engine_metrics[name]['r2_mean']:.4f} (±{per_engine_metrics[name]['r2_std']:.4f})")
             cv_node.add(f"RMSE: {per_engine_metrics[name]['rmse_mean']:.4f} (±{per_engine_metrics[name]['rmse_std']:.4f})")
             cv_node.add(f"MAE: {per_engine_metrics[name]['mae_mean']:.4f} (±{per_engine_metrics[name]['mae_std']:.4f})")
+
+            progress.advance(task)
 
         except Exception as e:
             logger.error(f"[Orchestrator|{name}] Error running engine {name}: {e}", exc_info=True)

@@ -7,6 +7,10 @@ set -e  # Exit on any error
 
 # Optional Auto-Sklearn environment
 ENABLE_AS=false
+OFFLINE_MODE=${OFFLINE_MODE:-false}
+if [ "$OFFLINE_MODE" = true ]; then
+    echo "Offline installation mode detected"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -146,7 +150,17 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     offline_opts=()
-    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+    if [ "$OFFLINE_MODE" = true ]; then
+        log_info "Offline mode enabled - installing from wheels only"
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        else
+            log_error "Offline mode requested but no wheels directory found"
+            exit 1
+        fi
+    elif [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
         offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
     elif [ -d wheels ]; then
         offline_opts=(--no-index --find-links wheels)
@@ -177,7 +191,17 @@ install_env_as_deps() {
     pip install --upgrade pip
 
     offline_opts=()
-    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+    if [ "$OFFLINE_MODE" = true ]; then
+        log_info "Offline mode enabled - installing from wheels only"
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        else
+            log_error "Offline mode requested but no wheels directory found"
+            exit 1
+        fi
+    elif [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
         offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
     elif [ -d wheels ]; then
         offline_opts=(--no-index --find-links wheels)
