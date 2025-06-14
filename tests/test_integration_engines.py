@@ -59,6 +59,15 @@ def load_orchestrator(monkeypatch):
     metrics.r2_score = lambda *a, **k: 0
     monkeypatch.setitem(sys.modules, "sklearn.metrics", metrics)
 
+    monkeypatch.setitem(sys.modules, "scripts", types.ModuleType("scripts"))
+    fe_mod = types.ModuleType("scripts.feature_engineering")
+    def engineer_features(X):
+        return X, types.SimpleNamespace(
+            named_steps={"pca": types.SimpleNamespace(n_components_=1)}
+        )
+    fe_mod.engineer_features = engineer_features
+    monkeypatch.setitem(sys.modules, "scripts.feature_engineering", fe_mod)
+
     data_loader = types.ModuleType("scripts.data_loader")
     def load_data(*a, **k):
         return DummyX([1]), DummyY([1])
@@ -86,6 +95,9 @@ def load_orchestrator(monkeypatch):
 
     pickle_stub = types.ModuleType("pickle")
     pickle_stub.dump = lambda *a, **k: None
+    pickle_stub.Pickler = type("Pickler", (), {})
+    pickle_stub.loads = lambda *a, **k: None
+    pickle_stub.load = lambda *a, **k: None
     monkeypatch.setitem(sys.modules, "pickle", pickle_stub)
 
     spec = importlib.util.spec_from_file_location(
