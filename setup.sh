@@ -122,8 +122,11 @@ create_environments() {
     if [ "$ENABLE_AS" = true ]; then
         if ! pyenv versions --bare | grep -q "automl-py310"; then
             log_info "Creating automl-py310 (Auto-Sklearn)..."
-            pyenv install -s 3.10
-            pyenv virtualenv 3.10 automl-py310
+            if pyenv install -s 3.10 && pyenv virtualenv 3.10 automl-py310; then
+                log_success "automl-py310 created"
+            else
+                log_warning "Python 3.10 unavailable; skipping automl-py310 environment"
+            fi
         else
             log_warning "automl-py310 already exists"
         fi
