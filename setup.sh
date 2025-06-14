@@ -39,12 +39,16 @@ check_system() {
         log_warning "This script is optimized for Linux. Continuing anyway..."
     fi
     
-    # Check for available Python versions (strictly enforce 3.11)
+    # Check for available Python versions, prefer 3.11 but allow 3.10
     if command -v python3.11 &> /dev/null; then
         PYTHON_CMD="python3.11"
-        log_success "Found Python 3.11 (required)"
+        log_success "Found Python 3.11"
+    elif command -v python3.10 &> /dev/null; then
+        PYTHON_CMD="python3.10"
+        ENABLE_AS=true
+        log_warning "Python 3.11 not found. Using Python 3.10 instead. Some features may be limited."
     else
-        log_error "Python 3.11 is required but not found. Please install Python 3.11 before running this setup script."
+        log_error "Python 3.10 or higher is required but neither python3.11 nor python3.10 was found."
         log_info "For Ubuntu/Debian: sudo apt install python3.11 python3.11-venv python3.11-dev"
         log_info "For Arch: sudo pacman -S python311"
         exit 1

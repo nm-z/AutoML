@@ -16,6 +16,10 @@ using the orchestrator:
 pyenv activate automl-py311
 ```
 
+The script prefers Python 3.11 but will run with Python 3.10 if 3.11 is not
+available. In that case the Auto-Sklearn environment is enabled automatically
+and Python 3.11 is installed via `pyenv` for TPOT and AutoGluon.
+
 If you prefer to manage the environment yourself, install the required packages first:
 
 ```bash
