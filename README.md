@@ -154,7 +154,7 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+Run the helper script to verify your setup. It uses `pyenv exec` with the `automl-py311` environment and runs all three engines for 60 seconds on the sample dataset:
 
 ```bash
 ./run_all.sh

@@ -5,13 +5,9 @@ set -euo pipefail
 # Determine script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Activate default environment
-pyenv activate automl-py311
-
-# Execute orchestrator with sample dataset
-python "$SCRIPT_DIR/orchestrator.py" --all --time 60 \
+# Execute orchestrator with sample dataset using automl-py311
+PYENV_VERSION=automl-py311 pyenv exec python "$SCRIPT_DIR/orchestrator.py" --all --time 60 \
   --data "$SCRIPT_DIR/DataSets/1/D1-Predictors.csv" \
   --target "$SCRIPT_DIR/DataSets/1/D1-Targets.csv" "$@"
 
-pyenv deactivate
 
