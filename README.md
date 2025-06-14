@@ -169,6 +169,14 @@ The repository provides a convenience script to launch the orchestrator on **Dat
 ```
 This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`.
 
+### Ensemble Experiment
+Use the helper script below to try a simple weighted ensemble of the three engine champions:
+
+```bash
+python scripts/ensemble_experiment.py --data DataSets/2/D2-Predictors.csv --target DataSets/2/D2-Targets.csv
+```
+The script runs all engines, fits a linear regressor on their predictions, and reports the ensemble's R² score.
+
 ## Project Structure
 
 ```
