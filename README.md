@@ -112,6 +112,9 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ### Manual Installation (if setup.sh fails)
 
 ```bash
+# Ensure the pyenv-virtualenv plugin is installed
+git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+
 # Create environments with pyenv
 pyenv virtualenv 3.11 automl-py311
 # Optional Auto-Sklearn environment
