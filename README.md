@@ -126,7 +126,7 @@ pyenv deactivate
 # Install TPOT + AutoGluon environment
 pyenv activate automl-py311
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost lightgbm
+pip install setuptools tpot==1.0.0 autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost==3.0.2 lightgbm==4.6.0 python-logstash-async==4.0.2
 pyenv deactivate
 ```
 
