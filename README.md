@@ -265,3 +265,5 @@ ensuring they persist between runs.
 
 This project is licensed under the [MIT License](LICENSE).
 
+
+See [RESULTS.md](RESULTS.md) for example optimization runs and metrics.
