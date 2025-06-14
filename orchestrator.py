@@ -185,6 +185,23 @@ def _extract_pipeline_info(model: Any) -> list[dict]:
         return [{"step": model.__class__.__name__, "params": {}}]
 
 
+def _build_tree(node: Tree, path: Path) -> None:
+    """Recursively add directories and files to a Rich tree."""
+    for child in sorted(path.iterdir()):
+        if child.is_dir():
+            branch = node.add(f"[bold blue]{child.name}/[/bold blue]")
+            _build_tree(branch, child)
+        else:
+            node.add(child.name)
+
+
+def _print_artifact_tree(root_path: Path) -> None:
+    """Print the artifact directory in tree form using Rich."""
+    tree = Tree(f"[bold magenta]{root_path.name}/[/bold magenta]")
+    _build_tree(tree, root_path)
+    console.print(tree)
+
+
 def _write_runtime_manifest(
     run_dir: Path,
     initial_cli_args: argparse.Namespace,
@@ -765,6 +782,11 @@ def _cli() -> None:
         default=os.cpu_count() or 1,
         help="Number of CPU threads to use inside the container",
     )
+    parser.add_argument(
+        "--tree",
+        action="store_true",
+        help="Print the run's artifact directory as a tree after completion",
+    )
 
     args = parser.parse_args()
 
@@ -936,6 +958,8 @@ def _cli() -> None:
         sys.exit(1) # Terminate pipeline immediately
 
     console.log("[bold green]AutoML Orchestrator Run Completed[/bold green]")
+    if args.tree:
+        _print_artifact_tree(run_dir)
 
 
 if __name__ == "__main__":
