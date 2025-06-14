@@ -14,6 +14,7 @@
 - Fixed `run_all.sh` so it initializes pyenv when run in a non-interactive shell.
 - Completed systematic review of PRs #94-#97: merged PR #97 (pyenv initialization fix) and rejected PRs #94-#96 (all attempted to revert the pyenv improvements).
 - Completed massive PR cleanup: systematically reviewed and closed PRs #98-#108 (11 PRs total) - all were based on outdated main branch and would have reverted recent improvements.
+- Updated `setup.sh` to use `pyenv deactivate` when exiting test environments (fix from rejected PR #96).
 
 ## Remaining Action Items
 
@@ -23,7 +24,6 @@
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
-- Apply the `deactivate` to `pyenv deactivate` fix from rejected PR #96 to `setup.sh`.
 
 ## Status
 

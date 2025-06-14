@@ -274,7 +274,7 @@ print(f'  - NumPy version: {np.__version__}')
 print(f'  - Pandas version: {pd.__version__}')
 "
     fi
-    deactivate
+    pyenv deactivate
     
     log_success "All environments tested successfully"
 }
