@@ -65,8 +65,30 @@ TPOT_METRIC_MAP = {
 }
 
 
+def _validate_components(model_families: Sequence[str], prep_steps: Sequence[str]) -> None:
+    """Ensure provided component names exist in the allowed spaces."""
+    invalid_models = [m for m in model_families if m not in _MODEL_SPACE]
+    invalid_preps = [p for p in prep_steps if p not in _PREPROCESSOR_SPACE]
+    if invalid_models or invalid_preps:
+        parts = []
+        if invalid_models:
+            parts.append("models: " + ", ".join(sorted(invalid_models)))
+        if invalid_preps:
+            parts.append("preprocessors: " + ", ".join(sorted(invalid_preps)))
+        raise ValueError("Unsupported TPOT components - " + "; ".join(parts))
+
+
+def _translate_metric(metric: str) -> str:
+    """Return TPOT metric name, falling back to r2 for unsupported metrics."""
+    if metric not in TPOT_METRIC_MAP:
+        logger.warning("[TPOT] Unsupported metric '%s'. Defaulting to r2", metric)
+        return "r2"
+    return TPOT_METRIC_MAP[metric]
+
+
 def _build_frozen_config(model_families: Sequence[str], prep_steps: Sequence[str]) -> dict:
     """Return a TPOT *config_dict* limited to supported Regressors & Transformers."""
+    _validate_components(model_families, prep_steps)
     frozen: dict[str, dict] = {}
 
     # Add Regressor primitives (model families)
@@ -147,7 +169,7 @@ class TPOTEngine(BaseEngine):
         self._metric = kwargs.get("metric", DEFAULT_METRIC) # Store the metric
 
         custom_tpot_config = _build_frozen_config(model_families, prep_steps)
-        tpot_metric = TPOT_METRIC_MAP.get(self._metric, "r2")
+        tpot_metric = _translate_metric(self._metric)
 
         try:
             from tpot import TPOTRegressor

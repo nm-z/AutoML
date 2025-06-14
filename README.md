@@ -248,6 +248,9 @@ ensuring they persist between runs.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
+- **Invalid TPOT components** – If you specify unknown model families or
+  preprocessing steps, the orchestrator will error and list the unsupported
+  names. Check the `components/` directory for valid options.
 
 ## License
 
