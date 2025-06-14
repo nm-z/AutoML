@@ -169,6 +169,17 @@ The repository provides a convenience script to launch the orchestrator on **Dat
 ```
 This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`.
 
+### Hyperparameter Tuning Utility
+Use the new helper script to perform a quick hyperparameter search with scikit-learn's `RandomizedSearchCV`:
+
+```bash
+python scripts/hyperparameter_tuner.py \
+  --data DataSets/2/D2-Predictors.csv \
+  --target DataSets/2/D2-Targets.csv \
+  --output rf_tuning_results.json
+```
+The script tunes a `RandomForestRegressor` and saves the best parameters and CV score to the specified JSON file.
+
 ## Project Structure
 
 ```
