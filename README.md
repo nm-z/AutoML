@@ -183,6 +183,7 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 - **`metrics.json`** - Comprehensive 5×3 CV performance metrics
 - **`*.log`** - Detailed execution logs
 Pass `--tree` to print this directory structure when the run finishes.
+Run progress is automatically displayed as a tree using `rich.tree`.
 
 ## System Requirements
 

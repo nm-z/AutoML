@@ -281,6 +281,7 @@ def _meta_search_sequential(
     metric: str = DEFAULT_METRIC,
     enable_ensemble: bool = False,
     n_cpus: int,
+    progress_tree: Tree | None = None,
 ) -> Tuple[Any, Dict[str, Any], Dict[str, Dict[str, float]]]:
     """Run each available AutoML engine sequentially and return the best model.
 
@@ -326,6 +327,8 @@ def _meta_search_sequential(
         raise RuntimeError("No AutoML engines found.")
 
     root = Tree("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
+    if progress_tree is not None:
+        progress_tree.add(root)
 
     for name, wrapper_module in discovered_engines.items():
         engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
@@ -396,7 +399,8 @@ def _meta_search_sequential(
             engine_node.add(f"[bold red]Error: {e}[/bold red]")
             # Do not re-raise, allow other engines to run
 
-    console.print(root)
+    if progress_tree is None:
+        console.print(root)
 
     if not fitted_models:
         logger.error("No models were successfully fitted across all engines.")
@@ -559,6 +563,7 @@ def _meta_search_concurrent(
     run_dir: Path | str = "05_outputs",
     enable_ensemble: bool,
     n_cpus: int,
+    progress_tree: Tree | None = None,
 ) -> Tuple[Any, Dict[str, Any], Dict[str, Dict[str, float]]]:
     """Run each available AutoML engine in parallel and return the best model.
 
@@ -588,7 +593,9 @@ def _meta_search_concurrent(
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    root = Tree("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    if progress_tree is not None:
+        progress_tree.add(root)
 
     # Discover available engines
     discovered_engines = discover_available()
@@ -620,16 +627,24 @@ def _meta_search_concurrent(
     per_engine_fitted_models: Dict[str, Any] = {}
     per_engine_metrics: Dict[str, Dict[str, float]] = {}
 
-    for _ in workers: # Iterate as many times as there are workers
+    for _ in workers:  # Iterate as many times as there are workers
         eng_name, fitted_model, metrics = q.get()
-        if fitted_model is not None: # Only store successful results
+        engine_node = root.add(f"[bold blue]{eng_name}[/bold blue]")
+        if fitted_model is not None:  # Only store successful results
             per_engine_fitted_models[eng_name] = fitted_model
             per_engine_metrics[eng_name] = metrics
+            engine_node.add(f"R²: {metrics['r2_mean']:.4f}")
+            engine_node.add(f"RMSE: {metrics['rmse_mean']:.4f}")
+            engine_node.add(f"MAE: {metrics['mae_mean']:.4f}")
         else:
             error_msg = metrics.get('error', 'Unknown error')
             error_tb = metrics.get('traceback', 'No traceback available')
+            engine_node.add(f"[bold red]Error: {error_msg}[/bold red]")
             console.print(f"[red]✗ {eng_name} error: {error_msg}[/]")
-            logger.error(f"[Orchestrator] Error from {eng_name} child process:\n%s", error_tb)
+            logger.error(
+                f"[Orchestrator] Error from {eng_name} child process:\n%s",
+                error_tb,
+            )
 
     for worker in workers: # Wait for all processes to finish
         worker.join()
@@ -653,7 +668,12 @@ def _meta_search_concurrent(
         logger.error("Could not determine a champion model from concurrent run.")
         raise RuntimeError("Could not determine a champion model from concurrent run.")
 
-    logger.info(f"Champion model selected from concurrent run: {champion_engine_name} with mean R² of {best_r2_score:.4f}")
+    logger.info(
+        f"Champion model selected from concurrent run: {champion_engine_name} with mean R² of {best_r2_score:.4f}"
+    )
+
+    if progress_tree is None:
+        console.print(root)
 
     return champion_model, per_engine_fitted_models, per_engine_metrics
 
@@ -848,12 +868,20 @@ def _cli() -> None:
     console.log(f"  Selected Engines: {', '.join(selected_engines)}")
     console.log(f"  Artifacts Directory: {run_dir}")
 
+    progress_tree = Tree("[bold green]Run Progress[/bold green]")
+    progress_tree.add(f"Dataset: {args.data}")
+    progress_tree.add(f"Target: {args.target}")
+    progress_tree.add(f"Metric: {args.metric}")
+    progress_tree.add(f"Engines: {', '.join(selected_engines)}")
+    champion_engine_name = ""
+
     # Load data
     try:
         # The data_loader.py function now handles resolving the exact file paths
         # if a directory is provided, so we can pass args.data and args.target directly.
         X, y = load_data(args.data, args.target)
         logger.info(f"Data loaded successfully. X shape: {X.shape}, y shape: {y.shape}")
+        progress_tree.add("Data loaded")
     except Exception as e:
         logger.error(f"Failed to load data: {e}", exc_info=True)
         sys.exit(1) # Terminate pipeline immediately
@@ -864,6 +892,7 @@ def _cli() -> None:
         X, y, test_size=0.2, random_state=RANDOM_STATE, shuffle=True
     )
     logger.info(f"Data split into training/CV ({X_train_cv.shape[0]} rows) and hold-out ({X_holdout.shape[0]} rows) sets.")
+    progress_tree.add("Data split into train/CV and hold-out")
 
     try:
         if len(selected_engines) > 1 and not args.no_ensemble:
@@ -876,7 +905,12 @@ def _cli() -> None:
                 metric=args.metric,
                 enable_ensemble=not args.no_ensemble,
                 n_cpus=args.cpus,
+                progress_tree=progress_tree,
             )
+            champion_engine_name = max(
+                per_engine_metrics.items(),
+                key=lambda kv: kv[1].get("r2_mean", -float("inf")),
+            )[0]
             # Blend champions if ensembling is enabled
             if fitted_engines and not args.no_ensemble:
                 logger.info("Blending champion models...")
@@ -898,7 +932,12 @@ def _cli() -> None:
                 metric=args.metric,
                 enable_ensemble=False,  # Ensemble is handled outside sequential for single engine runs
                 n_cpus=args.cpus,
+                progress_tree=progress_tree,
             )
+            champion_engine_name = max(
+                per_engine_metrics.items(),
+                key=lambda kv: kv[1].get("r2_mean", -float("inf")),
+            )[0]
 
         # Evaluate champion model on the hold-out set
         logger.info("Evaluating champion model on the hold-out set...")
@@ -906,6 +945,10 @@ def _cli() -> None:
         r2_holdout = r2_score(y_holdout, y_pred_holdout)
         rmse_holdout = _rmse(y_holdout, y_pred_holdout)
         mae_holdout = mean_absolute_error(y_holdout, y_pred_holdout)
+
+        progress_tree.add(
+            f"Champion: {champion_engine_name} (R²={r2_holdout:.4f})"
+        )
 
         logger.info(f"Champion Model Hold-out Metrics: R²={r2_holdout:.4f}, RMSE={rmse_holdout:.4f}, MAE={mae_holdout:.4f}")
 
@@ -948,6 +991,7 @@ def _cli() -> None:
         with open(metrics_json_path, "w") as f:
             json.dump(metrics_data, f, indent=2)
         logger.info(f"Metrics saved to {metrics_json_path}")
+        progress_tree.add("Artifacts saved")
 
         # Save per-engine champion models
         for eng_name, fitted_model in fitted_engines.items():
@@ -961,6 +1005,7 @@ def _cli() -> None:
         sys.exit(1) # Terminate pipeline immediately
 
     console.log("[bold green]AutoML Orchestrator Run Completed[/bold green]")
+    console.print(progress_tree)
     if args.tree:
         _print_directory_tree(run_dir)
 
