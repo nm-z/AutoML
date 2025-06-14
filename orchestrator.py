@@ -724,6 +724,21 @@ def _print_directory_tree(path: Path) -> None:
     """Print the artifact directory structure using ``rich.tree``."""
     console.print(_directory_to_tree(path))
 
+
+def _ensure_dataset2_available(data_path: str | Path, target_path: str | Path) -> None:
+    """Exit gracefully with a helpful message if Dataset 2 files are missing."""
+    data_path = Path(data_path)
+    target_path = Path(target_path)
+    involves_d2 = "DataSets/2" in str(data_path) or "DataSets/2" in str(target_path)
+    if involves_d2 and (not data_path.is_file() or not target_path.is_file()):
+        msg = (
+            "Dataset 2 files are missing. Expected 'DataSets/2/D2-Predictors.csv' "
+            "and 'DataSets/2/D2-Targets.csv'."
+        )
+        logger.error(msg)
+        console.log(f"[red]{msg}[/red]")
+        sys.exit(1)
+
 def _cli() -> None:
     """Parses command-line arguments and orchestrates the AutoML pipeline."""
     parser = argparse.ArgumentParser(
@@ -792,6 +807,8 @@ def _cli() -> None:
     )
 
     args = parser.parse_args()
+
+    _ensure_dataset2_available(args.data, args.target)
 
     try:
         _validate_components_availability()

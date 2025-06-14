@@ -152,6 +152,11 @@ python orchestrator.py --all --time 3600 \
 pyenv deactivate
 ```
 
+> **Dataset 2 Note**
+> Baseline runs rely on files in `DataSets/2/`. The orchestrator now checks for
+> `D2-Predictors.csv` and `D2-Targets.csv` and exits with a clear message if they
+> are missing.
+
 
 ### Quick Smoke Test
 Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:

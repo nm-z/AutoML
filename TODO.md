@@ -93,6 +93,7 @@
 - [x] Resolved scikit-learn version conflicts (>=1.4.2,<1.6)
 - [x] Added pyenv initialization to run_all.sh for non-interactive shells
 - [x] Enhanced artifact directory tree display with --tree flag
+- [x] Graceful exit if Dataset 2 files are missing
 
 ## 🚨 Current PR Status
 
