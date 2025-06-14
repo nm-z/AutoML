@@ -154,7 +154,7 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the bundled sample dataset:
 
 ```bash
 ./run_all.sh
@@ -243,8 +243,8 @@ ensuring they persist between runs.
 - **Setup problems** – If `./setup.sh` fails, follow the instructions in the
   *Manual Installation* section to create `automl-py310` and `automl-py311`
   manually and install the required packages. If network access is restricted,
-  bundle the required wheels or configure a local PyPI mirror so
-  setup and `make test` can run offline.
+  bundle the required wheels into the `wheels/` directory or configure a
+  local PyPI mirror so setup and `make test` can run offline.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.

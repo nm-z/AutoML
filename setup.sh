@@ -7,6 +7,7 @@ set -e  # Exit on any error
 
 # Optional Auto-Sklearn environment
 ENABLE_AS=false
+WHEEL_DIR="$(cd "$(dirname "$0")" && pwd)/wheels"
 
 # Colors for output
 RED='\033[0;31m'
@@ -121,9 +122,18 @@ create_environments() {
 
     if [ "$ENABLE_AS" = true ]; then
         if ! pyenv versions --bare | grep -q "automl-py310"; then
-            log_info "Creating automl-py310 (Auto-Sklearn)..."
-            pyenv install -s 3.10
-            pyenv virtualenv 3.10 automl-py310
+            if command -v python3.10 >/dev/null || pyenv install --list | grep -q "^  3.10"; then
+                log_info "Creating automl-py310 (Auto-Sklearn)..."
+                pyenv install -s 3.10 || {
+                    log_warning "Failed to install Python 3.10; skipping Auto-Sklearn environment"
+                    ENABLE_AS=false
+                    return
+                }
+                pyenv virtualenv 3.10 automl-py310
+            else
+                log_warning "Python 3.10 not available. Skipping Auto-Sklearn environment"
+                ENABLE_AS=false
+            fi
         else
             log_warning "automl-py310 already exists"
         fi
@@ -141,10 +151,14 @@ install_env_tpa_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
+    PIP_ARGS="--only-binary=:all:"
+    if [ -d "$WHEEL_DIR" ] && [ "$(ls -A "$WHEEL_DIR" 2>/dev/null)" ]; then
+        PIP_ARGS="$PIP_ARGS --no-index --find-links=$WHEEL_DIR"
+    fi
     if [ -f requirements-py311.txt ]; then
-        pip install --only-binary=:all: -r requirements-py311.txt
+        pip install $PIP_ARGS -r requirements-py311.txt
     else
-        pip install --only-binary=:all: -r requirements.txt
+        pip install $PIP_ARGS -r requirements.txt
     fi
 
     pyenv deactivate
@@ -165,14 +179,19 @@ install_env_as_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
+    PIP_ARGS="--only-binary=:all:"
+    if [ -d "$WHEEL_DIR" ] && [ "$(ls -A "$WHEEL_DIR" 2>/dev/null)" ]; then
+        PIP_ARGS="$PIP_ARGS --no-index --find-links=$WHEEL_DIR"
+    fi
+
     if [ "$PYTHON_MINOR" -ge 11 ]; then
         log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+        pip install $PIP_ARGS numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
         if [ -f requirements-py310.txt ]; then
-            pip install --only-binary=:all: -r requirements-py310.txt
+            pip install $PIP_ARGS -r requirements-py310.txt
         else
-            pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+            pip install $PIP_ARGS auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
         fi
     fi
 
@@ -274,7 +293,7 @@ print(f'  - NumPy version: {np.__version__}')
 print(f'  - Pandas version: {pd.__version__}')
 "
     fi
-    deactivate
+    pyenv deactivate
     
     log_success "All environments tested successfully"
 }
