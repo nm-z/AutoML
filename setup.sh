@@ -5,8 +5,22 @@
 
 set -e  # Exit on any error
 
+# Load pyenv so that `pyenv activate` works even when the script is executed
+# non-interactively. This mirrors the initialization block used in run_all.sh.
+export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
+export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+if command -v pyenv >/dev/null; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+else
+    echo "pyenv not found; aborting" >&2
+    exit 1
+fi
+
 # Optional Auto-Sklearn environment
 ENABLE_AS=false
+# Install dependencies using local wheels if true
+OFFLINE=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -39,16 +53,16 @@ check_system() {
         log_warning "This script is optimized for Linux. Continuing anyway..."
     fi
     
-    # Prefer Python 3.11 but fall back to Python 3.10 if necessary
-    if command -v python3.11 &> /dev/null; then
-        PYTHON_CMD="python3.11"
-        log_success "Found Python 3.11"
-    elif command -v python3.10 &> /dev/null; then
+    # Prefer Python 3.10 but fall back to Python 3.11 if necessary
+    if command -v python3.10 &> /dev/null; then
         PYTHON_CMD="python3.10"
-        log_warning "Python 3.11 not found; falling back to Python 3.10"
         ENABLE_AS=true
+        log_success "Found Python 3.10"
+    elif command -v python3.11 &> /dev/null; then
+        PYTHON_CMD="python3.11"
+        log_warning "Python 3.10 not found; falling back to Python 3.11"
     else
-        log_error "Python 3.11 or 3.10 is required but neither was found."
+        log_error "Python 3.10 or 3.11 is required but neither was found."
         log_info "For Ubuntu/Debian: sudo apt install python3.11 python3.11-venv python3.11-dev"
         log_info "For Arch: sudo pacman -S python311"
         exit 1
@@ -146,10 +160,21 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     offline_opts=()
-    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
-        offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
-    elif [ -d wheels ]; then
-        offline_opts=(--no-index --find-links wheels)
+    if [ "$OFFLINE" = true ]; then
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        else
+            log_error "Offline mode requested but no wheels directory found"
+            exit 1
+        fi
+    else
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        fi
     fi
 
     if [ -f requirements-py311.txt ]; then
@@ -177,10 +202,21 @@ install_env_as_deps() {
     pip install --upgrade pip
 
     offline_opts=()
-    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
-        offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
-    elif [ -d wheels ]; then
-        offline_opts=(--no-index --find-links wheels)
+    if [ "$OFFLINE" = true ]; then
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        else
+            log_error "Offline mode requested but no wheels directory found"
+            exit 1
+        fi
+    else
+        if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+            offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+        elif [ -d wheels ]; then
+            offline_opts=(--no-index --find-links wheels)
+        fi
     fi
 
     if [ "$PYTHON_MINOR" -ge 11 ]; then
@@ -397,9 +433,15 @@ main() {
     echo ""
 
     for arg in "$@"; do
-        if [ "$arg" = "--with-as" ]; then
-            ENABLE_AS=true
-        fi
+        case "$arg" in
+            --with-as)
+                ENABLE_AS=true
+                ;;
+            --offline)
+                OFFLINE=true
+                OFFLINE_WHEELS_DIR=${OFFLINE_WHEELS_DIR:-"wheels"}
+                ;;
+        esac
     done
     
     check_system

@@ -841,13 +841,17 @@ def _cli() -> None:
     logger.addHandler(file_handler)
 
     console.log("[bold green]Starting AutoML Orchestrator Run[/bold green]")
-    start_time = time.perf_counter() # Record the start time of the run
-    console.log(f"  Dataset: {args.data}")
-    console.log(f"  Target: {args.target}")
-    console.log(f"  Time Limit per Engine: {args.time} seconds")
-    console.log(f"  Evaluation Metric: {args.metric}")
-    console.log(f"  Selected Engines: {', '.join(selected_engines)}")
-    console.log(f"  Artifacts Directory: {run_dir}")
+    start_time = time.perf_counter()  # Record the start time of the run
+    config_tree = Tree("[bold magenta]Run Configuration[/bold magenta]")
+    config_tree.add(f"[cyan]Data:[/cyan] {args.data}")
+    config_tree.add(f"[cyan]Target:[/cyan] {args.target}")
+    config_tree.add(f"[cyan]Time Limit:[/cyan] {args.time}s")
+    config_tree.add(f"[cyan]Metric:[/cyan] {args.metric}")
+    engines_node = config_tree.add("[cyan]Engines[/cyan]")
+    for eng in selected_engines:
+        engines_node.add(eng)
+    config_tree.add(f"[cyan]Artifacts:[/cyan] {run_dir}")
+    console.print(config_tree)
 
     # Load data
     try:
