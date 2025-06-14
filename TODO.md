@@ -11,6 +11,7 @@
 - Reviewed and processed 9 pull requests: accepted 4 valuable PRs (run_all.sh, offline setup docs, tree flag, pyenv migration) and declined 5 problematic PRs (regressions, breaking changes, duplicates).
 - Added offline setup documentation for restricted network environments.
 - Completed systematic PR review and cleanup: processed all open PRs (13 total), closed duplicates and problematic PRs, maintained clean repository state.
+- Updated setup.sh so automl-py310 installs Auto-Sklearn, TPOT and AutoGluon; dataset 2 now runs with all three engines.
 
 ## Remaining Action Items
 

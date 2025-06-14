@@ -161,6 +161,21 @@ Run the helper script to verify your setup. It activates the default environment
 ```
 All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
+### Running Dataset 2 with Python 3.10
+Dataset 2 is provided to exercise **Auto-Sklearn** alongside the other engines using Python 3.10.
+Run `./setup.sh --with-as` once so the `automl-py310` environment includes Auto-Sklearn, TPOT and AutoGluon.
+
+```bash
+./setup.sh --with-as      # only required the first time
+pyenv activate automl-py310
+python orchestrator.py --all --time 3600 \
+  --data DataSets/2/D2-Predictors.csv \
+  --target DataSets/2/D2-Targets.csv
+pyenv deactivate
+```
+
+This ensures dataset 2 runs with all three engines under Python 3.10.
+
 ## Project Structure
 
 ```
