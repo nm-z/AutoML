@@ -8,12 +8,12 @@
 ./setup.sh [--with-as]
 ```
 
-This automatically creates the `automl-py311` and optional `automl-py310`
-environments using **pyenv**. After running it, activate the environment before
-using the orchestrator:
+This automatically creates the `env-tpa` environment for TPOT + AutoGluon and
+an optional `env-as` environment for Auto-Sklearn. After running it, activate
+the environment before using the orchestrator:
 
 ```bash
-pyenv activate automl-py311
+source env-tpa/bin/activate
 ```
 
 If you prefer to manage the environment yourself, install the required packages first:
@@ -36,19 +36,19 @@ This repository has three main branches:
 
 ## Python Environment Management
 
-This project now uses **pyenv** to maintain two dedicated environments:
+This project currently uses simple **venv** environments created by `setup.sh`:
 
-- **`automl-py310`** – Auto-Sklearn (Python 3.10)
-- **`automl-py311`** – TPOT + AutoGluon (Python 3.11)
+- **`env-as`** – Auto-Sklearn (Python 3.10)
+- **`env-tpa`** – TPOT + AutoGluon (Python 3.11)
 
 ### Quick Environment Usage
 
 ```bash
 # Activate an environment
-pyenv activate automl-py310   # or automl-py311
+source env-as/bin/activate   # or source env-tpa/bin/activate
 
 # Deactivate when done
-pyenv deactivate
+deactivate
 ```
 
 ## Development Environment Tips
@@ -56,11 +56,11 @@ pyenv deactivate
 1. **Environment Activation and Deactivation**
 
    ```bash
-   pyenv activate automl-py310  # or automl-py311
-   pyenv deactivate
+   source env-as/bin/activate  # or source env-tpa/bin/activate
+   deactivate
    ```
 
-   Use `pyenv local` in the project root so the environment activates automatically when entering the directory.
+   Remember to activate the environment each time you start a new shell.
 
 2. **Dependency Management**
 
@@ -68,17 +68,18 @@ pyenv deactivate
    After installing or updating packages in an environment run:
 
    ```bash
-   pyenv activate automl-py310
+   source env-as/bin/activate
    pip freeze > requirements-py310.txt
-   pyenv deactivate
+   deactivate
    ```
 
 3. **Running Scripts with Specific Versions**
 
-   You can call scripts without activating an environment by using `pyenv exec`:
+   You can call scripts without activating an environment by using the Python
+   interpreter from a specific environment:
 
    ```bash
-   pyenv exec python3.11 orchestrator.py --all
+   env-tpa/bin/python orchestrator.py --all
    ```
 
 4. **Troubleshooting**
@@ -112,29 +113,29 @@ sudo apt install python3.11 python3.11-venv python3.11-dev
 ### Manual Installation (if setup.sh fails)
 
 ```bash
-# Create environments with pyenv
-pyenv virtualenv 3.11 automl-py311
+# Create environments manually
+python3.11 -m venv env-tpa
 # Optional Auto-Sklearn environment
-pyenv virtualenv 3.10 automl-py310
+python3.10 -m venv env-as
 
 # Install Auto-Sklearn environment (Python <=3.10 only)
-pyenv activate automl-py310
+source env-as/bin/activate
 pip install --upgrade pip
 pip install auto-sklearn==0.15.0 numpy==1.24.3 scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib
-pyenv deactivate
+deactivate
 
 # Install TPOT + AutoGluon environment
-pyenv activate automl-py311
+source env-tpa/bin/activate
 pip install --upgrade pip
 pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost lightgbm
-pyenv deactivate
+deactivate
 ```
 
 ## Running the Orchestrator
 
 ```bash
 # Activate the appropriate environment
-pyenv activate automl-py311
+source env-tpa/bin/activate
 
 # Run the orchestrator (AutoGluon, Auto-Sklearn, and TPOT all run)
 python orchestrator.py --all --time 3600 \
@@ -149,7 +150,7 @@ python orchestrator.py --all --time 3600 \
 
 # The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
 # together. The `--all` flag is optional but included here for clarity.
-pyenv deactivate
+deactivate
 ```
 
 
@@ -234,14 +235,14 @@ ensuring they persist between runs.
   activate the default environment:
 
   ```bash
-  pyenv activate automl-py311
+  source env-tpa/bin/activate
   ```
 
-  Optionally switch to the Auto-Sklearn environment with `pyenv activate automl-py310`.
-  Deactivate the current environment at any time using `pyenv deactivate`.
+  Optionally switch to the Auto-Sklearn environment with `source env-as/bin/activate`.
+  Deactivate the current environment at any time using `deactivate`.
 
 - **Setup problems** – If `./setup.sh` fails, follow the instructions in the
-  *Manual Installation* section to create `automl-py310` and `automl-py311`
+  *Manual Installation* section to create `env-as` and `env-tpa`
   manually and install the required packages. If network access is restricted,
   bundle the required wheels or configure a local PyPI mirror so
   setup and `make test` can run offline.
