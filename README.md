@@ -154,12 +154,12 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+Run the helper script to verify your setup. It initializes `pyenv` automatically and runs all three engines for 60 seconds on the sample dataset. If `pyenv` or the required Python environments are missing, the script aborts with a helpful message:
 
 ```bash
 ./run_all.sh
 ```
-All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
+If the orchestrator exits with an error, the script prints `Smoke test failed` so you can diagnose missing packages. All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
 
 ### Training on Dataset 2
 The repository provides a convenience script to launch the orchestrator on **Dataset 2**.
@@ -167,7 +167,7 @@ The repository provides a convenience script to launch the orchestrator on **Dat
 ```bash
 ./run_d2.sh
 ```
-This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`.
+This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`. When the AutoML libraries are not installed, the wrappers fall back to simple `LinearRegression` models. You can still generate metrics but performance will be limited.
 
 ## Project Structure
 
