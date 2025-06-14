@@ -126,9 +126,28 @@ pyenv deactivate
 # Install TPOT + AutoGluon environment
 pyenv activate automl-py311
 pip install --upgrade pip
-pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost lightgbm
-pyenv deactivate
+  pip install setuptools tpot autogluon.tabular numpy scikit-learn\>=1.4.2,<1.6 pandas matplotlib seaborn rich joblib xgboost lightgbm
+  pyenv deactivate
 ```
+
+### Offline Installation
+
+If your workstation does not have internet access, pre-download all required
+wheels on another machine:
+
+```bash
+pip download -r requirements.txt -d wheelhouse
+```
+
+Copy the resulting `wheelhouse/` directory to the offline environment and
+install packages locally:
+
+```bash
+pip install --no-index --find-links=wheelhouse -r requirements.txt
+```
+
+This method ensures `pandas`, AutoGluon, TPOT, and Auto-Sklearn install without
+contacting PyPI.
 
 ## Running the Orchestrator
 
@@ -149,6 +168,18 @@ python orchestrator.py --all --time 3600 \
 
 # The orchestrator automatically runs Auto-Sklearn, TPOT and AutoGluon
 # together. The `--all` flag is optional but included here for clarity.
+pyenv deactivate
+```
+
+### Example: Training on Dataset 2
+
+Use the built-in `DataSets/2/` files for a quick test run:
+
+```bash
+pyenv activate automl-py311
+python orchestrator.py --all \
+  --data DataSets/2/D2-Predictors.csv \
+  --target DataSets/2/D2-Targets.csv
 pyenv deactivate
 ```
 

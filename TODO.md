@@ -15,11 +15,14 @@
 ## Remaining Action Items
 
 - Update environment setup to ensure required Python packages (e.g., pandas) are installed before running the orchestrator.
+- Investigate pip installation failures caused by restricted network access and provide offline installation guidance for core AutoML packages.
 - Modify `setup.sh` to skip automl-py310 creation gracefully when Python 3.10 is unavailable.
 - Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
+- Document offline wheel installation steps in `README.md` using a local
+  `wheelhouse` directory.
 
 ## Status
 
