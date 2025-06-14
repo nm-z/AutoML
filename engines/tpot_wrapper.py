@@ -65,6 +65,21 @@ TPOT_METRIC_MAP = {
 }
 
 
+def _validate_parameters(metric: str, model_families: Sequence[str], prep_steps: Sequence[str]) -> None:
+    """Validate metric and component names for TPOT configuration."""
+    errors = []
+    if metric not in TPOT_METRIC_MAP:
+        errors.append(f"metric '{metric}'")
+    invalid_models = [m for m in model_families if m not in _MODEL_SPACE]
+    if invalid_models:
+        errors.append("models: " + ", ".join(invalid_models))
+    invalid_preps = [p for p in prep_steps if p not in _PREPROCESSOR_SPACE]
+    if invalid_preps:
+        errors.append("preprocessors: " + ", ".join(invalid_preps))
+    if errors:
+        raise ValueError("Unsupported " + "; ".join(errors))
+
+
 def _build_frozen_config(model_families: Sequence[str], prep_steps: Sequence[str]) -> dict:
     """Return a TPOT *config_dict* limited to supported Regressors & Transformers."""
     frozen: dict[str, dict] = {}
@@ -144,7 +159,9 @@ class TPOTEngine(BaseEngine):
 
         model_families = kwargs.get("model_families", _MODEL_SPACE.keys())
         prep_steps = kwargs.get("prep_steps", _PREPROCESSOR_SPACE.keys())
-        self._metric = kwargs.get("metric", DEFAULT_METRIC) # Store the metric
+        self._metric = kwargs.get("metric", DEFAULT_METRIC)  # Store the metric
+
+        _validate_parameters(self._metric, model_families, prep_steps)
 
         custom_tpot_config = _build_frozen_config(model_families, prep_steps)
         tpot_metric = TPOT_METRIC_MAP.get(self._metric, "r2")

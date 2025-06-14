@@ -724,6 +724,18 @@ def _print_directory_tree(path: Path) -> None:
     """Print the artifact directory structure using ``rich.tree``."""
     console.print(_directory_to_tree(path))
 
+
+def _log_run_tree(args: argparse.Namespace, run_dir: Path, engines: Sequence[str]) -> None:
+    """Log run configuration using a rich ``Tree`` for better console output."""
+    tree = Tree("[bold cyan]Run Configuration[/bold cyan]")
+    tree.add(f"Dataset: {args.data}")
+    tree.add(f"Target: {args.target}")
+    tree.add(f"Time Limit per Engine: {args.time}s")
+    tree.add(f"Metric: {args.metric}")
+    tree.add(f"Engines: {', '.join(engines)}")
+    tree.add(f"Run Directory: {run_dir}")
+    console.print(tree)
+
 def _cli() -> None:
     """Parses command-line arguments and orchestrates the AutoML pipeline."""
     parser = argparse.ArgumentParser(
@@ -840,13 +852,8 @@ def _cli() -> None:
     logger.addHandler(file_handler)
 
     console.log("[bold green]Starting AutoML Orchestrator Run[/bold green]")
-    start_time = time.perf_counter() # Record the start time of the run
-    console.log(f"  Dataset: {args.data}")
-    console.log(f"  Target: {args.target}")
-    console.log(f"  Time Limit per Engine: {args.time} seconds")
-    console.log(f"  Evaluation Metric: {args.metric}")
-    console.log(f"  Selected Engines: {', '.join(selected_engines)}")
-    console.log(f"  Artifacts Directory: {run_dir}")
+    start_time = time.perf_counter()  # Record the start time of the run
+    _log_run_tree(args, run_dir, selected_engines)
 
     # Load data
     try:
