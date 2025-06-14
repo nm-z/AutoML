@@ -9,7 +9,8 @@
 ```
 
 This automatically creates the `automl-py311` and optional `automl-py310`
-environments using **pyenv**. After running it, activate the environment before
+environments using **pyenv**. If Python 3.11 is missing, the script falls back to Python 3.10 automatically.
+After running it, activate the environment before
 using the orchestrator:
 
 ```bash
@@ -168,6 +169,24 @@ The repository provides a convenience script to launch the orchestrator on **Dat
 ./run_d2.sh
 ```
 This uses all three engine wrappers on `DataSets/2/D2-Predictors.csv` and `DataSets/2/D2-Targets.csv`. Pass additional arguments after the script to forward them to `orchestrator.py`.
+
+### Offline Dependency Installation
+If the training environment cannot access the internet, download the required wheels on a machine that does:
+
+```bash
+mkdir wheels
+pip download -r requirements.txt -d wheels
+pip download -r requirements-py311.txt -d wheels
+pip download -r requirements-py310.txt -d wheels
+```
+
+Transfer the `wheels/` directory to the offline machine and run:
+
+```bash
+OFFLINE_WHEELS_DIR=./wheels ./setup.sh --with-as
+```
+
+`setup.sh` automatically installs packages from that directory using `pip --no-index`. This unblocks Dataset 2 training when network access is restricted.
 
 ## Project Structure
 

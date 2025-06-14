@@ -39,12 +39,16 @@ check_system() {
         log_warning "This script is optimized for Linux. Continuing anyway..."
     fi
     
-    # Check for available Python versions (strictly enforce 3.11)
+    # Prefer Python 3.11 but fall back to Python 3.10 if necessary
     if command -v python3.11 &> /dev/null; then
         PYTHON_CMD="python3.11"
-        log_success "Found Python 3.11 (required)"
+        log_success "Found Python 3.11"
+    elif command -v python3.10 &> /dev/null; then
+        PYTHON_CMD="python3.10"
+        log_warning "Python 3.11 not found; falling back to Python 3.10"
+        ENABLE_AS=true
     else
-        log_error "Python 3.11 is required but not found. Please install Python 3.11 before running this setup script."
+        log_error "Python 3.11 or 3.10 is required but neither was found."
         log_info "For Ubuntu/Debian: sudo apt install python3.11 python3.11-venv python3.11-dev"
         log_info "For Arch: sudo pacman -S python311"
         exit 1
@@ -141,10 +145,17 @@ install_env_tpa_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
+    offline_opts=()
+    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+        offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+    elif [ -d wheels ]; then
+        offline_opts=(--no-index --find-links wheels)
+    fi
+
     if [ -f requirements-py311.txt ]; then
-        pip install --only-binary=:all: -r requirements-py311.txt
+        pip install "${offline_opts[@]}" --only-binary=:all: -r requirements-py311.txt
     else
-        pip install --only-binary=:all: -r requirements.txt
+        pip install "${offline_opts[@]}" --only-binary=:all: -r requirements.txt
     fi
 
     pyenv deactivate
@@ -165,14 +176,21 @@ install_env_as_deps() {
     # Upgrade pip first
     pip install --upgrade pip
 
+    offline_opts=()
+    if [ -n "${OFFLINE_WHEELS_DIR:-}" ] && [ -d "$OFFLINE_WHEELS_DIR" ]; then
+        offline_opts=(--no-index --find-links "$OFFLINE_WHEELS_DIR")
+    elif [ -d wheels ]; then
+        offline_opts=(--no-index --find-links wheels)
+    fi
+
     if [ "$PYTHON_MINOR" -ge 11 ]; then
         log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+        pip install "${offline_opts[@]}" --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
         if [ -f requirements-py310.txt ]; then
-            pip install --only-binary=:all: -r requirements-py310.txt
+            pip install "${offline_opts[@]}" --only-binary=:all: -r requirements-py310.txt
         else
-            pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+            pip install "${offline_opts[@]}" --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
         fi
     fi
 
