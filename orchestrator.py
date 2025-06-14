@@ -281,6 +281,7 @@ def _meta_search_sequential(
     metric: str = DEFAULT_METRIC,
     enable_ensemble: bool = False,
     n_cpus: int,
+    parent_tree: Tree | None = None,
 ) -> Tuple[Any, Dict[str, Any], Dict[str, Dict[str, float]]]:
     """Run each available AutoML engine sequentially and return the best model.
 
@@ -298,9 +299,13 @@ def _meta_search_sequential(
     enable_ensemble
         If True, and multiple engines are run, an ensemble of their champion
         pipelines will be created.
+    parent_tree
+        Optional Rich ``Tree`` to attach progress output to.
     n_cpus
         Number of CPU threads available inside the container. Passed to each
         AutoML engine and used to limit BLAS threading.
+    parent_tree
+        Optional Rich ``Tree`` to attach progress output to.
 
     Returns
     -------
@@ -325,7 +330,10 @@ def _meta_search_sequential(
         logger.error("No AutoML engines found. Please ensure engine wrappers are in the 'engines/' directory.")
         raise RuntimeError("No AutoML engines found.")
 
-    root = Tree("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
+    if parent_tree is not None:
+        root = parent_tree.add("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
+    else:
+        root = Tree("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
 
     for name, wrapper_module in discovered_engines.items():
         engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
@@ -396,7 +404,8 @@ def _meta_search_sequential(
             engine_node.add(f"[bold red]Error: {e}[/bold red]")
             # Do not re-raise, allow other engines to run
 
-    console.print(root)
+    if parent_tree is None:
+        console.print(root)
 
     if not fitted_models:
         logger.error("No models were successfully fitted across all engines.")
@@ -559,6 +568,7 @@ def _meta_search_concurrent(
     run_dir: Path | str = "05_outputs",
     enable_ensemble: bool,
     n_cpus: int,
+    parent_tree: Tree | None = None,
 ) -> Tuple[Any, Dict[str, Any], Dict[str, Dict[str, float]]]:
     """Run each available AutoML engine in parallel and return the best model.
 
@@ -588,7 +598,10 @@ def _meta_search_concurrent(
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    if parent_tree is not None:
+        root = parent_tree.add("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    else:
+        root = Tree("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
 
     # Discover available engines
     discovered_engines = discover_available()
@@ -620,16 +633,29 @@ def _meta_search_concurrent(
     per_engine_fitted_models: Dict[str, Any] = {}
     per_engine_metrics: Dict[str, Dict[str, float]] = {}
 
-    for _ in workers: # Iterate as many times as there are workers
+    for _ in workers:  # Iterate as many times as there are workers
         eng_name, fitted_model, metrics = q.get()
-        if fitted_model is not None: # Only store successful results
+        engine_node = root.add(f"[bold blue]{eng_name}[/bold blue]")
+        if fitted_model is not None:  # Only store successful results
             per_engine_fitted_models[eng_name] = fitted_model
             per_engine_metrics[eng_name] = metrics
+            engine_node.add(
+                f"R²: {metrics['r2_mean']:.4f} (±{metrics['r2_std']:.4f})"
+            )
+            engine_node.add(
+                f"RMSE: {metrics['rmse_mean']:.4f} (±{metrics['rmse_std']:.4f})"
+            )
+            engine_node.add(
+                f"MAE: {metrics['mae_mean']:.4f} (±{metrics['mae_std']:.4f})"
+            )
         else:
-            error_msg = metrics.get('error', 'Unknown error')
-            error_tb = metrics.get('traceback', 'No traceback available')
-            console.print(f"[red]✗ {eng_name} error: {error_msg}[/]")
-            logger.error(f"[Orchestrator] Error from {eng_name} child process:\n%s", error_tb)
+            error_msg = metrics.get("error", "Unknown error")
+            error_tb = metrics.get("traceback", "No traceback available")
+            engine_node.add(f"[bold red]Error: {error_msg}[/bold red]")
+            logger.error(
+                f"[Orchestrator] Error from {eng_name} child process:\n%s",
+                error_tb,
+            )
 
     for worker in workers: # Wait for all processes to finish
         worker.join()
@@ -654,6 +680,9 @@ def _meta_search_concurrent(
         raise RuntimeError("Could not determine a champion model from concurrent run.")
 
     logger.info(f"Champion model selected from concurrent run: {champion_engine_name} with mean R² of {best_r2_score:.4f}")
+
+    if parent_tree is None:
+        console.print(root)
 
     return champion_model, per_engine_fitted_models, per_engine_metrics
 
@@ -814,14 +843,16 @@ def _cli() -> None:
     file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
     logger.addHandler(file_handler)
 
-    console.log("[bold green]Starting AutoML Orchestrator Run[/bold green]")
-    start_time = time.perf_counter() # Record the start time of the run
-    console.log(f"  Dataset: {args.data}")
-    console.log(f"  Target: {args.target}")
-    console.log(f"  Time Limit per Engine: {args.time} seconds")
-    console.log(f"  Evaluation Metric: {args.metric}")
-    console.log(f"  Selected Engines: {', '.join(selected_engines)}")
-    console.log(f"  Artifacts Directory: {run_dir}")
+    start_time = time.perf_counter()  # Record the start time of the run
+
+    run_tree = Tree("[bold green]AutoML Orchestrator Run[/bold green]")
+    cfg_node = run_tree.add("[bold]Configuration[/bold]")
+    cfg_node.add(f"Dataset: {args.data}")
+    cfg_node.add(f"Target: {args.target}")
+    cfg_node.add(f"Time Limit: {args.time}s")
+    cfg_node.add(f"Metric: {args.metric}")
+    cfg_node.add(f"Engines: {', '.join(selected_engines)}")
+    cfg_node.add(f"Artifacts Dir: {run_dir}")
 
     # Load data
     try:
@@ -829,6 +860,9 @@ def _cli() -> None:
         # if a directory is provided, so we can pass args.data and args.target directly.
         X, y = load_data(args.data, args.target)
         logger.info(f"Data loaded successfully. X shape: {X.shape}, y shape: {y.shape}")
+        data_node = run_tree.add("[bold]Data[/bold]")
+        data_node.add(f"Rows: {X.shape[0]}")
+        data_node.add(f"Features: {X.shape[1]}")
     except Exception as e:
         logger.error(f"Failed to load data: {e}", exc_info=True)
         sys.exit(1) # Terminate pipeline immediately
@@ -839,6 +873,9 @@ def _cli() -> None:
         X, y, test_size=0.2, random_state=RANDOM_STATE, shuffle=True
     )
     logger.info(f"Data split into training/CV ({X_train_cv.shape[0]} rows) and hold-out ({X_holdout.shape[0]} rows) sets.")
+    split_node = run_tree.add("[bold]Split[/bold]")
+    split_node.add(f"Train/CV rows: {X_train_cv.shape[0]}")
+    split_node.add(f"Hold-out rows: {X_holdout.shape[0]}")
 
     try:
         if len(selected_engines) > 1 and not args.no_ensemble:
@@ -851,6 +888,7 @@ def _cli() -> None:
                 metric=args.metric,
                 enable_ensemble=not args.no_ensemble,
                 n_cpus=args.cpus,
+                parent_tree=run_tree,
             )
             # Blend champions if ensembling is enabled
             if fitted_engines and not args.no_ensemble:
@@ -873,6 +911,7 @@ def _cli() -> None:
                 metric=args.metric,
                 enable_ensemble=False,  # Ensemble is handled outside sequential for single engine runs
                 n_cpus=args.cpus,
+                parent_tree=run_tree,
             )
 
         # Evaluate champion model on the hold-out set
@@ -935,6 +974,7 @@ def _cli() -> None:
         logger.error(f"An error occurred during meta-search or evaluation: {e}", exc_info=True)
         sys.exit(1) # Terminate pipeline immediately
 
+    console.print(run_tree)
     console.log("[bold green]AutoML Orchestrator Run Completed[/bold green]")
 
 

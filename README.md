@@ -51,6 +51,10 @@ pyenv activate automl-py310   # or automl-py311
 pyenv deactivate
 ```
 
+During execution the console displays progress as a hierarchical tree powered by
+the [`rich`](https://pypi.org/project/rich/) library, making it easy to follow
+each engine's steps and results.
+
 ## Development Environment Tips
 
 1. **Environment Activation and Deactivation**
