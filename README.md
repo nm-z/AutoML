@@ -246,6 +246,11 @@ ensuring they persist between runs.
   bundle the required wheels or configure a local PyPI mirror so
   setup and `make test` can run offline.
 
+- **`make setup` fails with `pyenv: no such command 'virtualenv'`** – Install
+  the `pyenv-virtualenv` plugin so `pyenv virtualenv` is available. Refer to the
+  [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) documentation for
+  installation steps.
+
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
 

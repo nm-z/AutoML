@@ -13,6 +13,7 @@
 - Completed systematic PR review and cleanup: processed all open PRs (13 total), closed duplicates and problematic PRs, maintained clean repository state.
 - Fixed `run_all.sh` so it initializes pyenv when run in a non-interactive shell.
 - Completed systematic review of PRs #94-#97: merged PR #97 (pyenv initialization fix) and rejected PRs #94-#96 (all attempted to revert the pyenv improvements).
+- Fixed Makefile indentation so `make setup` and `make clean` run correctly.
 
 ## Remaining Action Items
 
@@ -23,6 +24,7 @@
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.
 - Bundle prebuilt wheels or configure a local PyPI mirror so `make test` can run without internet access.
 - Apply the `deactivate` to `pyenv deactivate` fix from rejected PR #96 to `setup.sh`.
+- Install the `pyenv-virtualenv` plugin so `make setup` works without errors.
 
 ## Status
 
