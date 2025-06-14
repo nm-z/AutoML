@@ -152,6 +152,10 @@ python orchestrator.py --all --time 3600 \
 pyenv deactivate
 ```
 
+> **Important**
+> The root `AGENTS.md` file requires that every orchestration run includes
+> AutoGluon, Auto-Sklearn and TPOT simultaneously.
+
 
 ### Quick Smoke Test
 Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
