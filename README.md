@@ -249,6 +249,12 @@ ensuring they persist between runs.
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.
 
+### Continuous Integration
+
+The GitHub Actions workflow installs dependencies from `requirements-py311.txt`
+before running tests. This ensures packages like `rich` are available without
+manual intervention.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
