@@ -7,6 +7,7 @@ set -e  # Exit on any error
 
 # Optional Auto-Sklearn environment
 ENABLE_AS=false
+PIP_EXTRA_ARGS=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,6 +33,13 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+configure_pip() {
+    if [[ -n "$WHEELHOUSE" && -d "$WHEELHOUSE" ]]; then
+        log_info "Using offline wheels from $WHEELHOUSE"
+        PIP_EXTRA_ARGS="--no-index --find-links=$WHEELHOUSE"
+    fi
+}
+
 # Check if running on Linux
 check_system() {
     log_info "Checking system compatibility..."
@@ -39,12 +47,15 @@ check_system() {
         log_warning "This script is optimized for Linux. Continuing anyway..."
     fi
     
-    # Check for available Python versions (strictly enforce 3.11)
+    # Check for available Python versions with graceful fallback
     if command -v python3.11 &> /dev/null; then
         PYTHON_CMD="python3.11"
-        log_success "Found Python 3.11 (required)"
+        log_success "Found Python 3.11"
+    elif command -v python3.10 &> /dev/null; then
+        PYTHON_CMD="python3.10"
+        log_warning "Python 3.11 not found. Falling back to Python 3.10"
     else
-        log_error "Python 3.11 is required but not found. Please install Python 3.11 before running this setup script."
+        log_error "Python 3.11 or 3.10 is required but neither was found."
         log_info "For Ubuntu/Debian: sudo apt install python3.11 python3.11-venv python3.11-dev"
         log_info "For Arch: sudo pacman -S python311"
         exit 1
@@ -65,9 +76,10 @@ install_system_deps() {
     if command -v apt &> /dev/null; then
         log_info "Detected apt package manager"
         # We won't run sudo commands automatically, just inform user
-        if ! dpkg -l | grep -q python3.11-dev; then
-            log_warning "python3.11-dev not found. You may need to run:"
-            log_warning "sudo apt update && sudo apt install -y python3.11-dev build-essential"
+        PY_VER=${PYTHON_CMD#python}
+        if ! dpkg -l | grep -q "python${PY_VER}-dev"; then
+            log_warning "python${PY_VER}-dev not found. You may need to run:"
+            log_warning "sudo apt update && sudo apt install -y python${PY_VER}-dev build-essential"
         fi
     elif command -v pacman &> /dev/null; then
         log_info "Detected pacman package manager"
@@ -142,9 +154,9 @@ install_env_tpa_deps() {
     pip install --upgrade pip
 
     if [ -f requirements-py311.txt ]; then
-        pip install --only-binary=:all: -r requirements-py311.txt
+        pip install $PIP_EXTRA_ARGS --only-binary=:all: -r requirements-py311.txt
     else
-        pip install --only-binary=:all: -r requirements.txt
+        pip install $PIP_EXTRA_ARGS --only-binary=:all: -r requirements.txt
     fi
 
     pyenv deactivate
@@ -167,12 +179,12 @@ install_env_as_deps() {
 
     if [ "$PYTHON_MINOR" -ge 11 ]; then
         log_warning "Auto-Sklearn 0.15.0 is incompatible with Python $PYTHON_MINOR; installing base stack only"
-        pip install --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+        pip install $PIP_EXTRA_ARGS --only-binary=:all: numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
     else
         if [ -f requirements-py310.txt ]; then
-            pip install --only-binary=:all: -r requirements-py310.txt
+            pip install $PIP_EXTRA_ARGS --only-binary=:all: -r requirements-py310.txt
         else
-            pip install --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
+            pip install $PIP_EXTRA_ARGS --only-binary=:all: auto-sklearn==0.15.0 numpy pandas scikit-learn==1.4.2 matplotlib seaborn rich joblib
         fi
     fi
 
@@ -383,6 +395,8 @@ main() {
             ENABLE_AS=true
         fi
     done
+
+    configure_pip
     
     check_system
     install_system_deps

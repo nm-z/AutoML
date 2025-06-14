@@ -16,6 +16,14 @@ using the orchestrator:
 pyenv activate automl-py311
 ```
 
+If network access is restricted, set the `WHEELHOUSE` environment variable to a
+directory containing pre-downloaded wheels before running `setup.sh`:
+
+```bash
+export WHEELHOUSE=/path/to/wheels
+./setup.sh
+```
+
 If you prefer to manage the environment yourself, install the required packages first:
 
 ```bash
@@ -109,6 +117,10 @@ sudo pacman -S python311
 sudo apt install python3.11 python3.11-venv python3.11-dev
 ```
 
+If Python 3.11 isn't available the setup script now falls back to Python 3.10 so
+basic functionality still works. AutoGluon and Auto-Sklearn require Python
+<=3.11.
+
 ### Manual Installation (if setup.sh fails)
 
 ```bash
@@ -154,12 +166,16 @@ pyenv deactivate
 
 
 ### Quick Smoke Test
-Run the helper script to verify your setup. It activates the default environment and runs all three engines for 60 seconds on the sample dataset:
+`run_all.sh` automatically executes the orchestrator against every dataset found
+in the `DataSets/` directory. It activates `automl-py311` when available and
+falls back to `automl-py310` otherwise.
 
 ```bash
 ./run_all.sh
 ```
-All orchestrations run **AutoGluon**, **Auto-Sklearn**, and **TPOT** simultaneously. The `--all` flag ensures every run evaluates each engine before selecting a champion.
+If any dataset is missing the required `*Predictors.csv` or `*Targets.csv` file
+the script prints a clear error. Each run invokes **AutoGluon**, **Auto-Sklearn**
+and **TPOT** together using the `--all` flag.
 
 ## Project Structure
 
@@ -244,7 +260,8 @@ ensuring they persist between runs.
   *Manual Installation* section to create `automl-py310` and `automl-py311`
   manually and install the required packages. If network access is restricted,
   bundle the required wheels or configure a local PyPI mirror so
-  setup and `make test` can run offline.
+  setup and `make test` can run offline. Set `WHEELHOUSE=/path/to/wheels` before
+  running `setup.sh` to install from local wheels.
 
 - **Python version incompatibilities** – AutoGluon and Auto-Sklearn are skipped
   on Python 3.13. Use Python 3.11 for full functionality.

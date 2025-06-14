@@ -42,15 +42,15 @@
 ### Environment Management
 - [x] Setup script creates `automl-py310` and `automl-py311` pyenv environments automatically
 - [x] Fixed `run_all.sh` pyenv initialization for non-interactive shells
-- [ ] **ACTIVE**: Implement Python 3.10 graceful fallback when unavailable
-- [ ] **ACTIVE**: Create offline wheel installation support for restricted networks
+- [x] Implement Python 3.10 graceful fallback when unavailable
+- [x] Create offline wheel installation support for restricted networks
 
 ### Testing & Validation
 - [x] Added `--tree` flag to orchestrator for artifact directory display
 - [x] Smoke test passes for basic orchestrator functionality
-- [ ] **ACTIVE**: Improve smoke test documentation and error handling
-- [ ] Verify `run_all.sh` works with all dataset combinations
-- [ ] Add integration tests for all three engines
+- [x] Improve smoke test documentation and error handling
+- [x] Verify `run_all.sh` works with all dataset combinations
+- [x] Add integration tests for all three engines
 
 ### Code Quality & Maintenance
 - [x] Resolved scikit-learn version conflicts between engines
