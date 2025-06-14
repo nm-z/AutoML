@@ -9,12 +9,12 @@
 - Resolved scikit-learn version conflict by specifying `scikit-learn>=1.4.2,<1.6` so Auto-Sklearn and TPOT install together.
 - Setup script now creates `automl-py310` and `automl-py311` pyenv environments automatically.
 - Added `--tree` flag to `orchestrator.py` to display artifact directory trees and implemented tests verifying the output.
+- Enhanced console logs using `rich.tree` so run progress is displayed live as a tree.
 
 ## Remaining Action Items
 
 - Update environment setup to ensure required Python packages (e.g., pandas) are installed before running the orchestrator.
 - Modify `setup.sh` to skip automl-py310 creation gracefully when Python 3.10 is unavailable.
-- Enhance console logs using `rich.tree` so run progress is shown as a clear tree.
 - Verify `run_all.sh` smoke test passes after updating dependencies.
 - Add a missing `run_all.sh` script to launch the orchestrator with all three engines for a quick smoke test.
 - Revise setup or CI to ensure required packages like `rich` install reliably without manual intervention.

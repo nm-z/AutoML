@@ -142,6 +142,7 @@ python orchestrator.py --all --time 3600 \
   --target DataSets/3/targets_Hold\ 1\ Full_20250527_151252.csv \
   --cpus 4 \
   --tree
+# Run progress is displayed live as a tree during execution.
 
 # Use `--cpus` to limit how many threads each AutoML engine and the underlying
 # BLAS libraries may use. This is especially important when running inside a
@@ -183,6 +184,7 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 - **`metrics.json`** - Comprehensive 5×3 CV performance metrics
 - **`*.log`** - Detailed execution logs
 Pass `--tree` to print this directory structure when the run finishes.
+Progress is also shown in real time as a rich tree.
 
 ## System Requirements
 

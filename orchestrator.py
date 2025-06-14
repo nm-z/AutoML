@@ -327,74 +327,94 @@ def _meta_search_sequential(
 
     root = Tree("[bold cyan]AutoML Meta-Search (Sequential)[/bold cyan]")
 
-    for name, wrapper_module in discovered_engines.items():
-        engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
-        engine_start_time = time.perf_counter()
-        logger.info("[Orchestrator] Starting %s engine training...", name)
+    with Live(root, console=console, refresh_per_second=4) as live:
+        for name, wrapper_module in discovered_engines.items():
+            engine_node = root.add(f"[bold blue]Processing Engine: {name}[/bold blue]")
+            live.refresh()
+            engine_start_time = time.perf_counter()
+            logger.info("[Orchestrator] Starting %s engine training...", name)
 
-        try:
-            engine_class_name = wrapper_module.__all__[0] # Assuming the class name is the first in __all__
-            engine_class = getattr(wrapper_module, engine_class_name)
-            # Instantiate the engine wrapper
-            engine = engine_class(
-                seed=RANDOM_STATE,
-                timeout_sec=timeout_sec,
-                run_dir=run_dir,
-                metric=metric,
-                n_cpus=n_cpus,
-            )
+            try:
+                engine_class_name = wrapper_module.__all__[0]  # Assuming the class name is the first in __all__
+                engine_class = getattr(wrapper_module, engine_class_name)
+                # Instantiate the engine wrapper
+                engine = engine_class(
+                    seed=RANDOM_STATE,
+                    timeout_sec=timeout_sec,
+                    run_dir=run_dir,
+                    metric=metric,
+                    n_cpus=n_cpus,
+                )
 
-            # Fit the model
-            logger.info(f"[Orchestrator|{name}] Fitting model for {name}...")
-            fitted_model = engine.fit(X, y)
-            logger.info(f"[Orchestrator|{name}] Model fitting complete for {name}.")
-            fitted_models[name] = fitted_model
+                # Fit the model
+                logger.info(f"[Orchestrator|{name}] Fitting model for {name}...")
+                fitted_model = engine.fit(X, y)
+                logger.info(f"[Orchestrator|{name}] Model fitting complete for {name}.")
+                fitted_models[name] = fitted_model
 
-            # Perform 5x3 Repeated Cross-Validation
-            cv_node = engine_node.add("5×3 Repeated K-Fold evaluation…")
-            rkf = RepeatedKFold(n_splits=N_SPLITS_CROSS_VALIDATION, n_repeats=N_REPEATS_CROSS_VALIDATION, random_state=RANDOM_STATE)
-            scoring = {
-                "r2": make_scorer(r2_score),
-                "rmse": make_scorer(_rmse, greater_is_better=False),
-                "mae": make_scorer(mean_absolute_error, greater_is_better=False),
-            }
-            logger.info(f"[Orchestrator|{name}] Starting {N_REPEATS_CROSS_VALIDATION}x{N_SPLITS_CROSS_VALIDATION} Repeated K-Fold Cross-Validation for {name}...")
-            cv_results = cross_validate(
-                fitted_model,
-                X,
-                y,
-                cv=rkf,
-                scoring=scoring,
-                return_train_score=False,
-                n_jobs=1,
-            )
-            logger.info(f"[Orchestrator|{name}] Cross-Validation complete for {name}.")
+                # Perform 5x3 Repeated Cross-Validation
+                cv_node = engine_node.add("5×3 Repeated K-Fold evaluation…")
+                rkf = RepeatedKFold(
+                    n_splits=N_SPLITS_CROSS_VALIDATION,
+                    n_repeats=N_REPEATS_CROSS_VALIDATION,
+                    random_state=RANDOM_STATE,
+                )
+                scoring = {
+                    "r2": make_scorer(r2_score),
+                    "rmse": make_scorer(_rmse, greater_is_better=False),
+                    "mae": make_scorer(mean_absolute_error, greater_is_better=False),
+                }
+                logger.info(
+                    f"[Orchestrator|{name}] Starting {N_REPEATS_CROSS_VALIDATION}x{N_SPLITS_CROSS_VALIDATION} Repeated K-Fold Cross-Validation for {name}..."
+                )
+                cv_results = cross_validate(
+                    fitted_model,
+                    X,
+                    y,
+                    cv=rkf,
+                    scoring=scoring,
+                    return_train_score=False,
+                    n_jobs=1,
+                )
+                logger.info(f"[Orchestrator|{name}] Cross-Validation complete for {name}.")
 
-            # Process CV results
-            r2_scores = cv_results["test_r2"]
-            rmse_scores = np.abs(cv_results["test_rmse"]) # RMSE is typically positive
-            mae_scores = np.abs(cv_results["test_mae"])   # MAE is typically positive
+                # Process CV results
+                r2_scores = cv_results["test_r2"]
+                rmse_scores = np.abs(cv_results["test_rmse"])
+                mae_scores = np.abs(cv_results["test_mae"])
 
-            engine_duration = time.perf_counter() - engine_start_time
+                engine_duration = time.perf_counter() - engine_start_time
 
-            per_engine_metrics[name] = {
-                "r2_mean": np.mean(r2_scores),
-                "r2_std": np.std(r2_scores),
-                "rmse_mean": np.mean(rmse_scores),
-                "rmse_std": np.std(rmse_scores),
-                "mae_mean": np.mean(mae_scores),
-                "mae_std": np.std(mae_scores),
-                "duration_seconds": engine_duration,
-            }
-            logger.info(f"[Orchestrator|{name}] Metrics: R²={per_engine_metrics[name]['r2_mean']:.4f} (±{per_engine_metrics[name]['r2_std']:.4f}), RMSE={per_engine_metrics[name]['rmse_mean']:.4f} (±{per_engine_metrics[name]['rmse_std']:.4f}), MAE={per_engine_metrics[name]['mae_mean']:.4f} (±{per_engine_metrics[name]['mae_std']:.4f})")
-            cv_node.add(f"R²: {per_engine_metrics[name]['r2_mean']:.4f} (±{per_engine_metrics[name]['r2_std']:.4f})")
-            cv_node.add(f"RMSE: {per_engine_metrics[name]['rmse_mean']:.4f} (±{per_engine_metrics[name]['rmse_std']:.4f})")
-            cv_node.add(f"MAE: {per_engine_metrics[name]['mae_mean']:.4f} (±{per_engine_metrics[name]['mae_std']:.4f})")
+                per_engine_metrics[name] = {
+                    "r2_mean": np.mean(r2_scores),
+                    "r2_std": np.std(r2_scores),
+                    "rmse_mean": np.mean(rmse_scores),
+                    "rmse_std": np.std(rmse_scores),
+                    "mae_mean": np.mean(mae_scores),
+                    "mae_std": np.std(mae_scores),
+                    "duration_seconds": engine_duration,
+                }
+                logger.info(
+                    f"[Orchestrator|{name}] Metrics: R²={per_engine_metrics[name]['r2_mean']:.4f} (±{per_engine_metrics[name]['r2_std']:.4f}), RMSE={per_engine_metrics[name]['rmse_mean']:.4f} (±{per_engine_metrics[name]['rmse_std']:.4f}), MAE={per_engine_metrics[name]['mae_mean']:.4f} (±{per_engine_metrics[name]['mae_std']:.4f})"
+                )
+                cv_node.add(
+                    f"R²: {per_engine_metrics[name]['r2_mean']:.4f} (±{per_engine_metrics[name]['r2_std']:.4f})"
+                )
+                cv_node.add(
+                    f"RMSE: {per_engine_metrics[name]['rmse_mean']:.4f} (±{per_engine_metrics[name]['rmse_std']:.4f})"
+                )
+                cv_node.add(
+                    f"MAE: {per_engine_metrics[name]['mae_mean']:.4f} (±{per_engine_metrics[name]['mae_std']:.4f})"
+                )
 
-        except Exception as e:
-            logger.error(f"[Orchestrator|{name}] Error running engine {name}: {e}", exc_info=True)
-            engine_node.add(f"[bold red]Error: {e}[/bold red]")
-            # Do not re-raise, allow other engines to run
+            except Exception as e:
+                logger.error(
+                    f"[Orchestrator|{name}] Error running engine {name}: {e}", exc_info=True
+                )
+                engine_node.add(f"[bold red]Error: {e}[/bold red]")
+                # Do not re-raise, allow other engines to run
+            finally:
+                live.refresh()
 
     console.print(root)
 
@@ -588,7 +608,8 @@ def _meta_search_concurrent(
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    root = Tree("[bold cyan]AutoML Meta-Search (Concurrent)[/bold cyan]")
+    engine_nodes: Dict[str, Tree] = {}
 
     # Discover available engines
     discovered_engines = discover_available()
@@ -597,42 +618,62 @@ def _meta_search_concurrent(
         raise RuntimeError("No AutoML engines found.")
 
     ctx = _mp.get_context("spawn")  # "spawn" is safer for multiprocessing
-    q = ctx.Queue() # type: ignore
+    q = ctx.Queue()  # type: ignore
     workers = []
-
-    for name in discovered_engines.keys():  # Iterate over names only
-        worker = ctx.Process(
-            target=_runner,
-            args=(
-                name,
-                X,
-                y,
-                timeout_per_engine,
-                run_dir,
-                metric,
-                n_cpus,
-                q,
-            ),
-        )
-        worker.start()
-        workers.append(worker)
-
     per_engine_fitted_models: Dict[str, Any] = {}
     per_engine_metrics: Dict[str, Dict[str, float]] = {}
 
-    for _ in workers: # Iterate as many times as there are workers
-        eng_name, fitted_model, metrics = q.get()
-        if fitted_model is not None: # Only store successful results
-            per_engine_fitted_models[eng_name] = fitted_model
-            per_engine_metrics[eng_name] = metrics
-        else:
-            error_msg = metrics.get('error', 'Unknown error')
-            error_tb = metrics.get('traceback', 'No traceback available')
-            console.print(f"[red]✗ {eng_name} error: {error_msg}[/]")
-            logger.error(f"[Orchestrator] Error from {eng_name} child process:\n%s", error_tb)
+    with Live(root, console=console, refresh_per_second=4) as live:
+        for name in discovered_engines.keys():  # Iterate over names only
+            engine_nodes[name] = root.add(f"[bold blue]{name} running...[/bold blue]")
+            live.refresh()
+            worker = ctx.Process(
+                target=_runner,
+                args=(
+                    name,
+                    X,
+                    y,
+                    timeout_per_engine,
+                    run_dir,
+                    metric,
+                    n_cpus,
+                    q,
+                ),
+            )
+            worker.start()
+            workers.append(worker)
 
-    for worker in workers: # Wait for all processes to finish
+        for _ in workers:  # Iterate as many times as there are workers
+            eng_name, fitted_model, metrics = q.get()
+            node = engine_nodes.get(eng_name, root.add(eng_name))
+            if fitted_model is not None:
+                per_engine_fitted_models[eng_name] = fitted_model
+                per_engine_metrics[eng_name] = metrics
+                node.label = f"[bold blue]{eng_name} complete[/bold blue]"
+                node.add(
+                    f"R²: {metrics['r2_mean']:.4f} (±{metrics['r2_std']:.4f})"
+                )
+                node.add(
+                    f"RMSE: {metrics['rmse_mean']:.4f} (±{metrics['rmse_std']:.4f})"
+                )
+                node.add(
+                    f"MAE: {metrics['mae_mean']:.4f} (±{metrics['mae_std']:.4f})"
+                )
+            else:
+                error_msg = metrics.get('error', 'Unknown error')
+                error_tb = metrics.get('traceback', 'No traceback available')
+                node.label = f"[bold red]{eng_name} failed[/bold red]"
+                node.add(f"Error: {error_msg}")
+                logger.error(
+                    f"[Orchestrator] Error from {eng_name} child process:\n%s",
+                    error_tb,
+                )
+            live.refresh()
+
+    for worker in workers:  # Wait for all processes to finish
         worker.join()
+
+    console.print(root)
 
     if not per_engine_fitted_models:
         logger.error("All AutoML engines failed in concurrent run.")
