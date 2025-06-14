@@ -188,7 +188,7 @@ All runs generate artifacts in `05_outputs/<dataset_name>/`:
 - Python 3.11+ (recommended) or Python 3.13 (with limitations)
 - 8GB+ RAM for larger datasets
 
-- Build tools (`build-essential` on Ubuntu, `base-devel` on Arch) 
+- Build tools (`build-essential` with `libssl-dev`, `zlib1g-dev`, `libbz2-dev`, `libreadline-dev`, `libsqlite3-dev` on Ubuntu; `base-devel` on Arch) 
 ## Log Aggregation
 
 This project ships a simple **ELK stack** configuration for collecting and searching logs.
