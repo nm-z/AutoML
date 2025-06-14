@@ -10,6 +10,7 @@
 - Added `--tree` flag to `orchestrator.py` to display artifact directory trees and implemented tests verifying the output.
 - Reviewed and processed 9 pull requests: accepted 4 valuable PRs (run_all.sh, offline setup docs, tree flag, pyenv migration) and declined 5 problematic PRs (regressions, breaking changes, duplicates).
 - Added offline setup documentation for restricted network environments.
+- Updated `python-logstash-async` to version 3.0.0 for Python 3.11 compatibility.
 - Completed systematic PR review and cleanup: processed all open PRs (13 total), closed duplicates and problematic PRs, maintained clean repository state.
 
 ## Remaining Action Items

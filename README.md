@@ -73,6 +73,8 @@ pyenv deactivate
    pyenv deactivate
    ```
 
+   Python 3.11 users must upgrade to `python-logstash-async>=3.0.0`.
+
 3. **Running Scripts with Specific Versions**
 
    You can call scripts without activating an environment by using `pyenv exec`:
