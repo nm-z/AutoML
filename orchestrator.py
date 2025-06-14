@@ -724,6 +724,38 @@ def _print_directory_tree(path: Path) -> None:
     """Print the artifact directory structure using ``rich.tree``."""
     console.print(_directory_to_tree(path))
 
+
+def _build_summary_tree(
+    per_engine_metrics: Dict[str, Dict[str, float]],
+    holdout_metrics: Dict[str, float],
+    champion_engine_name: str,
+) -> Tree:
+    """Create a rich Tree summarizing final run metrics."""
+    root = Tree("[bold green]Run Summary[/bold green]")
+    champ = champion_engine_name or "N/A"
+    root.add(f"Champion Engine: [bold]{champ}[/bold]")
+
+    holdout_node = root.add("Hold-out Performance")
+    holdout_node.add(f"R²: {holdout_metrics['r2']:.4f}")
+    holdout_node.add(f"RMSE: {holdout_metrics['rmse']:.4f}")
+    holdout_node.add(f"MAE: {holdout_metrics['mae']:.4f}")
+
+    engines_node = root.add("Per-Engine CV Metrics")
+    for name, metrics in per_engine_metrics.items():
+        r2_mean = metrics.get("r2_mean")
+        rmse_mean = metrics.get("rmse_mean")
+        mae_mean = metrics.get("mae_mean")
+        eng_label = f"{name}"
+        if r2_mean is not None:
+            eng_label += f" (R² {r2_mean:.4f})"
+        eng_node = engines_node.add(eng_label)
+        if rmse_mean is not None:
+            eng_node.add(f"RMSE {rmse_mean:.4f}")
+        if mae_mean is not None:
+            eng_node.add(f"MAE {mae_mean:.4f}")
+
+    return root
+
 def _cli() -> None:
     """Parses command-line arguments and orchestrates the AutoML pipeline."""
     parser = argparse.ArgumentParser(
@@ -865,6 +897,8 @@ def _cli() -> None:
     )
     logger.info(f"Data split into training/CV ({X_train_cv.shape[0]} rows) and hold-out ({X_holdout.shape[0]} rows) sets.")
 
+    champion_engine_name = ""
+
     try:
         if len(selected_engines) > 1 and not args.no_ensemble:
             # Run engines concurrently if multiple are selected and ensembling is enabled
@@ -877,6 +911,10 @@ def _cli() -> None:
                 enable_ensemble=not args.no_ensemble,
                 n_cpus=args.cpus,
             )
+            champion_engine_name = max(
+                per_engine_metrics.items(),
+                key=lambda kv: kv[1].get("r2_mean", float("-inf")),
+            )[0]
             # Blend champions if ensembling is enabled
             if fitted_engines and not args.no_ensemble:
                 logger.info("Blending champion models...")
@@ -899,6 +937,10 @@ def _cli() -> None:
                 enable_ensemble=False,  # Ensemble is handled outside sequential for single engine runs
                 n_cpus=args.cpus,
             )
+            champion_engine_name = max(
+                per_engine_metrics.items(),
+                key=lambda kv: kv[1].get("r2_mean", float("-inf")),
+            )[0]
 
         # Evaluate champion model on the hold-out set
         logger.info("Evaluating champion model on the hold-out set...")
@@ -955,6 +997,13 @@ def _cli() -> None:
             with open(engine_champion_path, "wb") as f:
                 pickle.dump(fitted_model, f)
             logger.info(f"Champion model for {eng_name} saved to {engine_champion_path}")
+
+        summary_tree = _build_summary_tree(
+            per_engine_metrics,
+            {"r2": r2_holdout, "rmse": rmse_holdout, "mae": mae_holdout},
+            champion_engine_name,
+        )
+        console.print(summary_tree)
 
     except Exception as e:
         logger.error(f"An error occurred during meta-search or evaluation: {e}", exc_info=True)

@@ -92,6 +92,20 @@ def _build_frozen_config(model_families: Sequence[str], prep_steps: Sequence[str
     return frozen
 
 
+def _validate_tpot_parameters(model_families: Sequence[str], prep_steps: Sequence[str], metric: str) -> None:
+    """Validate TPOT parameters and raise ``ValueError`` if unsupported."""
+    unknown_models = [m for m in model_families if m not in TPOT_COMPONENT_MAP]
+    if unknown_models:
+        raise ValueError(f"Unknown model families for TPOT: {', '.join(unknown_models)}")
+
+    unknown_preps = [p for p in prep_steps if p not in TPOT_COMPONENT_MAP]
+    if unknown_preps:
+        raise ValueError(f"Unknown preprocessors for TPOT: {', '.join(unknown_preps)}")
+
+    if metric not in TPOT_METRIC_MAP:
+        raise ValueError(f"Unsupported metric '{metric}' for TPOT")
+
+
 class TPOTEngine(BaseEngine):
     """TPOT adapter conforming to the orchestrator's API."""
 
@@ -145,6 +159,8 @@ class TPOTEngine(BaseEngine):
         model_families = kwargs.get("model_families", _MODEL_SPACE.keys())
         prep_steps = kwargs.get("prep_steps", _PREPROCESSOR_SPACE.keys())
         self._metric = kwargs.get("metric", DEFAULT_METRIC) # Store the metric
+
+        _validate_tpot_parameters(model_families, prep_steps, self._metric)
 
         custom_tpot_config = _build_frozen_config(model_families, prep_steps)
         tpot_metric = TPOT_METRIC_MAP.get(self._metric, "r2")
